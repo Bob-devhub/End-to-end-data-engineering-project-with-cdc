@@ -1,0 +1,43 @@
+stream_id: pos_transactions
+event_type: pos_transaction        # value of $.event_type used to route from events_raw
+description: Point-of-sale line items from every store register
+is_active: true
+table: pos_transactions
+time_column: event_time
+retention_days: 365
+onelake_availability: true         # expose as Delta in OneLake for joins with Lakehouse gold
+
+fields:
+  - { name: transaction_id, path: $.transaction_id, type: string }
+  - { name: store_id, path: $.store_id, type: int }
+  - { name: register_id, path: $.register_id, type: int }
+  - { name: stock_item_id, path: $.stock_item_id, type: int }
+  - { name: quantity, path: $.quantity, type: int }
+  - { name: unit_price, path: $.unit_price, type: real }
+  - { name: amount, path: $.amount, type: real }
+  - { name: payment_method, path: $.payment_method, type: string }
+  - { name: event_time, path: $.event_time, type: datetime }
+
+aggregates:
+  - name: mv_pos_sales_1m
+    window: 1m
+    group_by: [store_id]
+    measures:
+      revenue: sum(amount)
+      units: sum(quantity)
+      transactions: dcount(transaction_id)
+  - name: mv_pos_item_velocity_15m
+    window: 15m
+    group_by: [store_id, stock_item_id]
+    measures:
+      units: sum(quantity)
+
+alerts:
+  - name: sales_spike
+    description: Store revenue in the last 5 minutes is unusually high
+    lookback: 5m
+    summarize: "revenue = sum(amount)"
+    group_by: [store_id]
+    condition: "revenue > 5000"
+    severity: medium
+    action: teams

@@ -1,0 +1,16 @@
+# Source systems registered with the framework.
+# connection_name must match a Fabric connection (Manage connections and gateways).
+
+source_systems:
+  - system_id: wwi_oltp
+    type: azure_sql
+    description: WideWorldImporters operational DB (Azure SQL DB, CDC enabled)
+    connection_name: conn-azsql-wwi
+    database: WideWorldImporters
+
+  - system_id: partner_files
+    type: adls
+    description: Partner landing zone (ADLS Gen2), event-triggered ingestion
+    connection_name: conn-adls-landing
+    container: landing
+    base_path: partners/

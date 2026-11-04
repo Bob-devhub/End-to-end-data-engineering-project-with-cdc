@@ -1,0 +1,24 @@
+stream_id: clickstream
+event_type: click
+description: Online store clickstream - view, add_to_cart, checkout
+is_active: true
+table: clickstream
+time_column: event_time
+retention_days: 30
+onelake_availability: false
+
+fields:
+  - { name: session_id, path: $.session_id, type: string }
+  - { name: customer_id, path: $.customer_id, type: int }
+  - { name: page, path: $.page, type: string }
+  - { name: action, path: $.action, type: string }
+  - { name: stock_item_id, path: $.stock_item_id, type: int }
+  - { name: event_time, path: $.event_time, type: datetime }
+
+aggregates:
+  - name: mv_click_funnel_5m
+    window: 5m
+    group_by: [action]
+    measures:
+      events: count()
+      sessions: dcount(session_id)

@@ -1,0 +1,37 @@
+entity_id: wwi_sales_customers
+system_id: wwi_oltp
+description: Customer master - history tracked (SCD2) by Copy job
+is_active: true
+priority: 10
+
+source:
+  schema_name: Sales
+  table: Customers
+
+target:
+  lakehouse: lh_bronze
+  table: wwi_sales_customers
+  silver_table: customers
+
+load:
+  ingestion_engine: copy_job
+  read_method: cdc
+  write_method: scd2
+  copy_job_group: wwi_cdc_scd2
+  primary_keys: [CustomerID]
+
+columns:
+  - { source: CustomerID, target: customer_id, type: int, nullable: false }
+  - { source: CustomerName, target: customer_name, type: string, nullable: false }
+  - { source: CustomerCategoryID, target: customer_category_id, type: int }
+  - { source: DeliveryCityID, target: delivery_city_id, type: int }
+  - { source: CreditLimit, target: credit_limit, type: "decimal(18,2)" }
+  - { source: AccountOpenedDate, target: account_opened_date, type: date }
+  - { source: Valid_From, target: valid_from, type: timestamp }
+  - { source: Valid_To, target: valid_to, type: timestamp }
+  - { source: Is_Current, target: is_current, type: boolean }
+
+dq_rules:
+  - { rule_type: not_null, column: customer_id, action: fail }
+  - { rule_type: not_null, column: customer_name, action: quarantine }
+  - { rule_type: range, column: credit_limit, min: 0, action: warn }

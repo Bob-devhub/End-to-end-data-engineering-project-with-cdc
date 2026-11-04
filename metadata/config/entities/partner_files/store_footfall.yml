@@ -1,0 +1,33 @@
+entity_id: partner_store_footfall
+system_id: partner_files
+description: Daily store footfall + store attributes from facilities partner (JSON)
+is_active: true
+priority: 50
+
+source:
+  file_pattern: footfall/*.json
+  format: json
+  options:
+    multiLine: "true"
+
+target:
+  lakehouse: lh_bronze
+  table: partner_store_footfall
+  silver_table: store_footfall
+
+load:
+  ingestion_engine: notebook
+  read_method: new_files
+  write_method: append
+
+columns:
+  - { source: store_id, target: store_id, type: int, nullable: false }
+  - { source: store_name, target: store_name, type: string }
+  - { source: region, target: region, type: string }
+  - { source: date, target: footfall_date, type: date, nullable: false }
+  - { source: visitors, target: visitors, type: int }
+
+dq_rules:
+  - { rule_type: not_null, column: store_id, action: quarantine }
+  - { rule_type: range, column: visitors, min: 0, action: quarantine }
+  - { rule_type: accepted_values, column: region, values: [North, South, East, West], action: warn }

@@ -1,0 +1,65 @@
+name: Deploy
+
+# DEV is connected to Fabric Git integration directly (workspace <-> main).
+# TEST/PROD are promoted from main with this workflow. Configure GitHub
+# Environments "TEST" and "PROD" (add required reviewers on PROD) with:
+#   vars:    FABRIC_WORKSPACE_ID, CONTROL_DB_SERVER, CONTROL_DB_NAME, KUSTO_CLUSTER_URI, KUSTO_DATABASE
+#   secrets: AZURE_CLIENT_ID, AZURE_TENANT_ID   (federated credential for OIDC)
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        type: choice
+        options: [TEST, PROD]
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ODBC driver
+        run: |
+          curl -sSL -O https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb
+          sudo dpkg -i packages-microsoft-prod.deb
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
+
+      - name: Install
+        run: pip install -e ".[db,kusto,deploy]"
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          allow-no-subscriptions: true
+
+      - name: Validate metadata
+        run: python scripts/validate_metadata.py
+
+      - name: Deploy Fabric items
+        run: python deploy/deploy.py --environment ${{ inputs.environment }} --workspace-id ${{ vars.FABRIC_WORKSPACE_ID }}
+
+      - name: Sync metadata to control DB
+        env:
+          CONTROL_DB_SERVER: ${{ vars.CONTROL_DB_SERVER }}
+          CONTROL_DB_NAME: ${{ vars.CONTROL_DB_NAME }}
+        run: python scripts/sync_metadata.py
+
+      - name: Deploy KQL objects
+        env:
+          KUSTO_CLUSTER_URI: ${{ vars.KUSTO_CLUSTER_URI }}
+          KUSTO_DATABASE: ${{ vars.KUSTO_DATABASE }}
+        run: python scripts/deploy_kql.py --apply

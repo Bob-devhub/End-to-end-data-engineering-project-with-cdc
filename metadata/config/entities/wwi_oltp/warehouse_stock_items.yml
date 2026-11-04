@@ -1,0 +1,36 @@
+entity_id: wwi_warehouse_stock_items
+system_id: wwi_oltp
+description: Product master - history tracked (SCD2) so price changes are preserved
+is_active: true
+priority: 10
+
+source:
+  schema_name: Warehouse
+  table: StockItems
+
+target:
+  lakehouse: lh_bronze
+  table: wwi_warehouse_stock_items
+  silver_table: stock_items
+
+load:
+  ingestion_engine: copy_job
+  read_method: cdc
+  write_method: scd2
+  copy_job_group: wwi_cdc_scd2
+  primary_keys: [StockItemID]
+
+columns:
+  - { source: StockItemID, target: stock_item_id, type: int, nullable: false }
+  - { source: StockItemName, target: stock_item_name, type: string, nullable: false }
+  - { source: SupplierID, target: supplier_id, type: int }
+  - { source: Brand, target: brand, type: string }
+  - { source: UnitPrice, target: unit_price, type: "decimal(18,2)" }
+  - { source: RecommendedRetailPrice, target: recommended_retail_price, type: "decimal(18,2)" }
+  - { source: Valid_From, target: valid_from, type: timestamp }
+  - { source: Valid_To, target: valid_to, type: timestamp }
+  - { source: Is_Current, target: is_current, type: boolean }
+
+dq_rules:
+  - { rule_type: not_null, column: stock_item_id, action: fail }
+  - { rule_type: range, column: unit_price, min: 0, action: quarantine }

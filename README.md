@@ -1,0 +1,104 @@
+# Contoso Retail — Metadata-Driven Data Platform on Microsoft Fabric
+
+An end-to-end data engineering project with three ingestion speeds. All of
+them are driven by metadata in Git and deployed with GitHub Actions.
+
+| Path | Mechanism | Latency | Lands in |
+|---|---|---|---|
+| **Hot** | Event simulator → Eventstream → Eventhouse (update policies, materialized views) → Real-Time Dashboard + Activator | seconds | `kql_retail_rt` |
+| **Warm** | Azure SQL DB (CDC) → **Copy job** (CDC read, SCD1 Merge / SCD2 write) | minutes | `lh_bronze` |
+| **Cold** | ADLS Gen2 partner files → storage event → generic notebook | on arrival | `lh_bronze` |
+
+Bronze → Silver (rename, cast, DQ, quarantine) and Silver → Gold (star schema)
+are shared by all batch paths. Eventhouse tables join Gold through **OneLake
+availability**, and a Direct Lake semantic model serves Power BI.
+
+```
+ Azure SQL DB (WWI, CDC) ──Copy job──┐
+                                     ├─► lh_bronze ─► nb_bronze_to_silver ─► lh_silver ─► nb_build_gold ─► lh_gold ─► Direct Lake ─► Power BI
+ ADLS Gen2 landing ──nb_ingest_files─┘                    ▲ DQ rules                                  ▲
+                                                          │                                           │ OneLake availability
+ sqldb_control (ctl.*) ◄── scripts/sync_metadata.py ◄── metadata/config/*.yml (Git = source of truth)   │
+                                                          │                                           │
+ simulator ─► Eventstream ─► events_raw ─► update policies ─► typed tables ─► materialized views ─────┘
+                                                                     └─► Real-Time Dashboard / Activator alerts
+```
+
+**The demo:** merge a PR that adds one YAML file. The new table or stream flows
+end to end with no pipeline or notebook changes.
+
+## Repository layout
+
+```
+metadata/
+  config/                   # SOURCE OF TRUTH - validated by CI
+    source_systems.yml
+    entities/<system>/*.yml # batch + CDC entities (load methods, column mapping, DQ rules)
+    streams/*.yml           # real-time streams (fields, aggregates, alerts)
+  ddl/001_control_tables.sql# control DB schema, views, logging procs
+source/azure_sql/           # enable CDC + change simulator for the OLTP source
+src/cdc_framework/          # Python package (also built as a wheel for the Fabric Environment)
+  config.py                 # pydantic metadata model + cross-entity validation
+  dq.py                     # rules -> Spark SQL predicates, apply_dq()
+  kql.py                    # stream metadata -> KQL tables, functions, update policies, MVs, alerts
+  copy_jobs.py              # entities -> Copy job specs (one per copy_job_group)
+  control_db.py             # sync metadata -> control DB
+scripts/                    # validate_metadata, sync_metadata, generate_copy_jobs, deploy_kql
+notebooks/                  # Fabric notebook sources (ingest files, bronze->silver, gold)
+simulator/                  # POS / IoT / clickstream event producer
+fabric/                     # Fabric Git integration folder (items synced from DEV) + parameter.yml
+deploy/deploy.py            # fabric-cicd promotion to TEST/PROD
+kql/generated/              # generated KQL (git-ignored, CI artifact)
+.github/workflows/          # ci.yml (lint, validate, test, build wheel), deploy.yml (OIDC deploy)
+docs/                       # onboarding guide, Copy job template guide
+```
+
+## Quick start (local)
+
+```bash
+python -m venv .venv
+```
+```bash
+.venv/Scripts/pip install -e ".[dev]"      # macOS/Linux: .venv/bin/pip
+```
+```bash
+python scripts/validate_metadata.py
+```
+```bash
+pytest -q
+```
+```bash
+python scripts/deploy_kql.py                # -> kql/generated/deploy.kql + alerts/
+```
+```bash
+python scripts/generate_copy_jobs.py        # -> build/copy_jobs/cj_*.json
+```
+```bash
+python simulator/producer.py --dry-run --count 5
+```
+
+## Build phases
+
+- [ ] **1. Foundations.** Create Azure SQL DB (serverless) and restore WideWorldImporters, then run
+      `source/azure_sql/001_enable_cdc.sql`. Create the Fabric workspace, `sqldb_control` (run the DDL),
+      and `lh_bronze`/`lh_silver`/`lh_gold`. Connect Git to `/fabric`.
+- [ ] **2. Warm path.** Build `cj_wwi_cdc_scd2` by hand, run `002_simulate_changes.sql`, and check the SCD2 rows
+      in Bronze. Commit it and follow [docs/copy-job-template.md](docs/copy-job-template.md).
+- [ ] **3. Metadata sync.** `scripts/sync_metadata.py`, then `pl_master` driven by `ctl.vw_*` views and logging procs.
+- [ ] **4. Silver and DQ.** Create the `env_cdc_framework` Environment with the CI wheel, then `nb_bronze_to_silver`.
+- [ ] **5. Cold path.** ADLS shortcut, `nb_ingest_files`, storage event trigger.
+- [ ] **6. Hot path.** Eventhouse plus `deploy_kql.py --apply`, Eventstream custom endpoint, simulator,
+      Real-Time Dashboard, Activator (`--freezer-fault-store 7` to trigger the alert).
+- [ ] **7. Gold and BI.** `nb_build_gold`, OneLake availability shortcut, Direct Lake model, report, and an ops page on `ctl.run_log`.
+- [ ] **8. CI/CD.** GitHub OIDC service principal, TEST/PROD workspaces, `fabric/parameter.yml`, `deploy.yml`.
+
+## Key design decisions
+
+- **Azure SQL DB as the OLTP source, SQL database in Fabric as the control DB.** Copy job CDC
+  doesn't support SQL database in Fabric as a source.
+- **One Copy job per `(read_method, write_method)` group.** Copy job applies both job-wide,
+  and the validator enforces this.
+- **Single raw table in Eventhouse.** Update policies route by `event_type`, so adding a stream
+  doesn't touch the Eventstream.
+- **Git is the source of truth for metadata.** The control DB config tables are fully reloaded on
+  deploy, and operational tables (run log, watermarks, DQ results) are never touched.

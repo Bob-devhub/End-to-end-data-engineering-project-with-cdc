@@ -1,0 +1,34 @@
+entity_id: wwi_sales_orders
+system_id: wwi_oltp
+description: Order headers - current state replicated via CDC (SCD1 merge)
+is_active: true
+priority: 20
+
+source:
+  schema_name: Sales
+  table: Orders
+
+target:
+  lakehouse: lh_bronze
+  table: wwi_sales_orders
+  silver_table: orders
+
+load:
+  ingestion_engine: copy_job
+  read_method: cdc
+  write_method: scd1_merge
+  copy_job_group: wwi_cdc_merge
+  primary_keys: [OrderID]
+
+columns:
+  - { source: OrderID, target: order_id, type: int, nullable: false }
+  - { source: CustomerID, target: customer_id, type: int, nullable: false }
+  - { source: SalespersonPersonID, target: salesperson_id, type: int }
+  - { source: OrderDate, target: order_date, type: date, nullable: false }
+  - { source: ExpectedDeliveryDate, target: expected_delivery_date, type: date }
+  - { source: LastEditedWhen, target: last_edited_at, type: timestamp }
+
+dq_rules:
+  - { rule_type: not_null, column: order_id, action: fail }
+  - { rule_type: unique, column: order_id, action: fail }
+  - { rule_type: not_null, column: customer_id, action: quarantine }

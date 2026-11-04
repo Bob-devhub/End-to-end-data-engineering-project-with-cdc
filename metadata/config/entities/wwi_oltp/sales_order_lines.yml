@@ -1,0 +1,34 @@
+entity_id: wwi_sales_order_lines
+system_id: wwi_oltp
+description: Order lines - current state replicated via CDC (SCD1 merge)
+is_active: true
+priority: 20
+
+source:
+  schema_name: Sales
+  table: OrderLines
+
+target:
+  lakehouse: lh_bronze
+  table: wwi_sales_order_lines
+  silver_table: order_lines
+
+load:
+  ingestion_engine: copy_job
+  read_method: cdc
+  write_method: scd1_merge
+  copy_job_group: wwi_cdc_merge
+  primary_keys: [OrderLineID]
+
+columns:
+  - { source: OrderLineID, target: order_line_id, type: int, nullable: false }
+  - { source: OrderID, target: order_id, type: int, nullable: false }
+  - { source: StockItemID, target: stock_item_id, type: int, nullable: false }
+  - { source: Quantity, target: quantity, type: int }
+  - { source: UnitPrice, target: unit_price, type: "decimal(18,2)" }
+  - { source: TaxRate, target: tax_rate, type: "decimal(18,3)" }
+  - { source: LastEditedWhen, target: last_edited_at, type: timestamp }
+
+dq_rules:
+  - { rule_type: not_null, column: order_id, action: fail }
+  - { rule_type: range, column: quantity, min: 1, max: 10000, action: quarantine }

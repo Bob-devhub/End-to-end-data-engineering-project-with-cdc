@@ -1,0 +1,36 @@
+# Deliberately watermark-based (CDC not enabled on this table) to demonstrate
+# the second read method. It lives in its own copy_job_group because a Copy job
+# that mixes CDC and non-CDC tables falls back to watermark for ALL tables.
+entity_id: wwi_warehouse_stock_item_holdings
+system_id: wwi_oltp
+description: Stock on hand per item - watermark incremental on LastEditedWhen
+is_active: true
+priority: 30
+
+source:
+  schema_name: Warehouse
+  table: StockItemHoldings
+
+target:
+  lakehouse: lh_bronze
+  table: wwi_warehouse_stock_item_holdings
+  silver_table: stock_holdings
+
+load:
+  ingestion_engine: copy_job
+  read_method: watermark
+  write_method: scd1_merge
+  copy_job_group: wwi_watermark
+  primary_keys: [StockItemID]
+  watermark_column: LastEditedWhen
+
+columns:
+  - { source: StockItemID, target: stock_item_id, type: int, nullable: false }
+  - { source: QuantityOnHand, target: quantity_on_hand, type: int }
+  - { source: ReorderLevel, target: reorder_level, type: int }
+  - { source: TargetStockLevel, target: target_stock_level, type: int }
+  - { source: LastEditedWhen, target: last_edited_at, type: timestamp }
+
+dq_rules:
+  - { rule_type: not_null, column: stock_item_id, action: fail }
+  - { rule_type: range, column: quantity_on_hand, min: 0, action: warn }

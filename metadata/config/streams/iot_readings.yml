@@ -1,0 +1,36 @@
+stream_id: iot_readings
+event_type: iot_reading
+description: Store sensors - freezer/fridge temperature, door state, footfall counters
+is_active: true
+table: iot_readings
+time_column: event_time
+retention_days: 90
+onelake_availability: true
+
+fields:
+  - { name: device_id, path: $.device_id, type: string }
+  - { name: store_id, path: $.store_id, type: int }
+  - { name: sensor_type, path: $.sensor_type, type: string }
+  - { name: value, path: $.value, type: real }
+  - { name: unit, path: $.unit, type: string }
+  - { name: event_time, path: $.event_time, type: datetime }
+
+aggregates:
+  - name: mv_iot_device_1m
+    window: 1m
+    group_by: [store_id, device_id, sensor_type]
+    measures:
+      avg_value: avg(value)
+      max_value: max(value)
+      readings: count()
+
+alerts:
+  - name: freezer_too_warm
+    description: Freezer average temperature above -15C for 5 minutes (cold-chain breach)
+    lookback: 5m
+    filter: "sensor_type == 'freezer'"
+    summarize: "avg_temp_c = avg(value)"
+    group_by: [store_id, device_id]
+    condition: "avg_temp_c > -15"
+    severity: high
+    action: teams

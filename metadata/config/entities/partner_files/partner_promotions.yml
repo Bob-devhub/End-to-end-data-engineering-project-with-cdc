@@ -1,0 +1,33 @@
+entity_id: partner_promotions
+system_id: partner_files
+description: Weekly promotions feed from marketing partner (CSV)
+is_active: true
+priority: 50
+
+source:
+  file_pattern: promotions/*.csv
+  format: csv
+  options:
+    header: "true"
+    delimiter: ","
+
+target:
+  lakehouse: lh_bronze
+  table: partner_promotions
+  silver_table: promotions
+
+load:
+  ingestion_engine: notebook
+  read_method: new_files
+  write_method: append
+
+columns:
+  - { source: promo_id, target: promo_id, type: string, nullable: false }
+  - { source: stock_item_id, target: stock_item_id, type: int, nullable: false }
+  - { source: discount_pct, target: discount_pct, type: "decimal(5,2)" }
+  - { source: start_date, target: start_date, type: date }
+  - { source: end_date, target: end_date, type: date }
+
+dq_rules:
+  - { rule_type: not_null, column: promo_id, action: quarantine }
+  - { rule_type: range, column: discount_pct, min: 0, max: 90, action: quarantine }
