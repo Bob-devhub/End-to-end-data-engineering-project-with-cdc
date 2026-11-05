@@ -1,0 +1,84 @@
+{
+  "properties": {
+    "jobMode": "CDC",
+    "fullLoadBehavior": "Truncate",
+    "source": {
+      "type": "AzureSqlTable",
+      "connectionSettings": {
+        "type": "AzureSqlDatabase",
+        "externalReferences": {
+          "connection": "0c392ce3-5e9b-480c-ad22-281bd9428842"
+        }
+      }
+    },
+    "destination": {
+      "type": "LakehouseTable",
+      "connectionSettings": {
+        "type": "Lakehouse",
+        "typeProperties": {
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "artifactId": "b82758e9-c67a-a713-4ec3-0e1ad0fc3f77",
+          "rootFolder": "Tables"
+        },
+        "externalReferences": {
+          "connection": "b78c7ad5-0fb4-4519-9aa2-040611e7760b"
+        }
+      }
+    },
+    "policy": {
+      "timeout": "0.12:00:00",
+      "retry": 0
+    }
+  },
+  "activities": [
+    {
+      "id": "997f377c-0997-4b06-81b4-795762b916f4",
+      "properties": {
+        "source": {
+          "datasetSettings": {
+            "schema": "Warehouse",
+            "table": "StockItemHoldings"
+          },
+          "changeDataSettings": {
+            "readMethod": "SnapshotPlusIncremental",
+            "columns": [
+              {
+                "name": "LastEditedWhen",
+                "type": "DateTime",
+                "physicalType": "datetime2"
+              }
+            ],
+            "nullWatermarkBehavior": "Skip"
+          },
+          "partitionSettings": {
+            "partitionOption": "None"
+          }
+        },
+        "destination": {
+          "upsertSettings": {
+            "keys": [
+              "StockItemID"
+            ]
+          },
+          "writeBehavior": "Upsert",
+          "datasetSettings": {
+            "schema": "Warehouse",
+            "table": "StockItemHoldings"
+          },
+          "applyVOrder": false,
+          "enableTimestampNtz": false
+        },
+        "enableStaging": false,
+        "translator": {
+          "type": "TabularTranslator"
+        },
+        "typeConversionSettings": {
+          "typeConversion": {
+            "allowDataTruncation": true,
+            "treatBooleanAsNumber": false
+          }
+        }
+      }
+    }
+  ]
+}

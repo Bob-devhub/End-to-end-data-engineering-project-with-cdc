@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "CopyJob",
+    "displayName": "cj_wwi_watermark"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "f6d9570a-8772-a3ca-4fde-f8370de42d44"
+  }
+}
