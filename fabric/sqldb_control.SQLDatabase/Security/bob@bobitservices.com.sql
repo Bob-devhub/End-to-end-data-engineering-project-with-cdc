@@ -1,0 +1,6 @@
+CREATE USER [bob@bobitservices.com]
+    WITH SID = 0x0119443A3CF8BC49B277BDF800CA7C6E, TYPE = E;
+
+
+GO
+
