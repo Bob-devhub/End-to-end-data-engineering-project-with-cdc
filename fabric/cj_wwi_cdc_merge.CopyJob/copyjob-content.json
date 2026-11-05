@@ -52,7 +52,7 @@
               "OrderLineID"
             ]
           },
-          "writeBehavior": "SCD2",
+          "writeBehavior": "Upsert",
           "datasetSettings": {
             "schema": "Sales",
             "table": "OrderLines"
@@ -93,7 +93,7 @@
               "OrderID"
             ]
           },
-          "writeBehavior": "SCD2",
+          "writeBehavior": "Upsert",
           "datasetSettings": {
             "schema": "Sales",
             "table": "Orders"
