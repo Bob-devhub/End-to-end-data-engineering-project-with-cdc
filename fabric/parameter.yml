@@ -1,30 +1,31 @@
 # fabric-cicd parameterization. fabric-cicd reads parameter.yml from the root of
 # repository_directory (this fabric/ folder).
 #
-# After the first Git sync from DEV, replace the placeholder find_values with
-# the real DEV GUIDs found in fabric/**/  (lakehouse IDs, workspace ID, connection IDs).
+# Handled automatically by fabric-cicd, no entry needed:
+#   - item logicalIds (e.g. lh_bronze's artifactId in Copy jobs) -> deployed item ids
+#   - workspaceId 00000000-0000-0000-0000-000000000000 ("same workspace") -> target workspace
+#
+# Everything below is a DEV value that must be swapped per environment.
+# Replace the TEST/PROD placeholders once those connections exist
+# (Settings -> Manage connections and gateways -> connection -> Settings -> Connection ID).
 
 find_replace:
-  # DEV workspace id -> target workspace id
-  - find_value: "00000000-0000-0000-0000-00000000dev0"
+  # conn-azsql-wwi (Azure SQL source for Copy jobs). DEV id also in metadata/config/source_systems.yml
+  - find_value: "0c392ce3-5e9b-480c-ad22-281bd9428842"
     replace_value:
-      TEST: "00000000-0000-0000-0000-0000000test0"
-      PROD: "00000000-0000-0000-0000-0000000prod0"
+      TEST: "<test-conn-azsql-wwi-id>"
+      PROD: "<prod-conn-azsql-wwi-id>"
+    item_type: "CopyJob"
 
-  # lh_bronze item id
-  - find_value: "11111111-1111-1111-1111-111111111dev"
+  # Lakehouse connection used as Copy job destination. DEV id also in metadata/config/fabric.yml
+  - find_value: "b78c7ad5-0fb4-4519-9aa2-040611e7760b"
     replace_value:
-      TEST: "11111111-1111-1111-1111-11111111test"
-      PROD: "11111111-1111-1111-1111-11111111prod"
+      TEST: "<test-lakehouse-connection-id>"
+      PROD: "<prod-lakehouse-connection-id>"
+    item_type: "CopyJob"
 
-  # Azure SQL source connection (Copy jobs): dev DB -> test/prod DB connection id
-  - find_value: "22222222-2222-2222-2222-222222222dev"
-    replace_value:
-      TEST: "22222222-2222-2222-2222-22222222test"
-      PROD: "22222222-2222-2222-2222-22222222prod"
-
-  # Eventhouse query URI
-  - find_value: "https://dev-xxxx.kusto.fabric.microsoft.com"
-    replace_value:
-      TEST: "https://test-xxxx.kusto.fabric.microsoft.com"
-      PROD: "https://prod-xxxx.kusto.fabric.microsoft.com"
+  # Eventhouse query URI (add once the Eventhouse exists)
+  # - find_value: "https://<dev>.kusto.fabric.microsoft.com"
+  #   replace_value:
+  #     TEST: "https://<test>.kusto.fabric.microsoft.com"
+  #     PROD: "https://<prod>.kusto.fabric.microsoft.com"

@@ -10,7 +10,8 @@ source:
 
 target:
   lakehouse: lh_bronze
-  table: wwi_sales_orders
+  schema_name: Sales
+  table: Orders
   silver_table: orders
 
 load:

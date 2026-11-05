@@ -13,7 +13,8 @@ source:
 
 target:
   lakehouse: lh_bronze
-  table: partner_promotions
+  schema_name: partner
+  table: promotions
   silver_table: promotions
 
 load:

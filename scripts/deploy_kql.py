@@ -3,7 +3,7 @@
     python scripts/deploy_kql.py                      # writes kql/generated/*.kql
     python scripts/deploy_kql.py --apply              # also runs commands against the KQL DB
 
-Apply uses KUSTO_CLUSTER_URI / KUSTO_DATABASE and DefaultAzureCredential.
+Apply uses KUSTO_CLUSTER_URI / KUSTO_DATABASE and your az login (see cdc_framework.auth).
 """
 
 from __future__ import annotations
@@ -32,10 +32,11 @@ def write_files(streams, out_dir: Path) -> None:
 
 
 def apply(streams, cluster: str, database: str) -> None:
-    from azure.identity import DefaultAzureCredential
     from azure.kusto.data import KustoClient, KustoConnectionStringBuilder
 
-    kcsb = KustoConnectionStringBuilder.with_azure_token_credential(cluster, DefaultAzureCredential())
+    from cdc_framework.auth import get_credential
+
+    kcsb = KustoConnectionStringBuilder.with_azure_token_credential(cluster, get_credential())
     client = KustoClient(kcsb)
     for cmd in all_commands(streams):
         first_line = cmd.splitlines()[0]

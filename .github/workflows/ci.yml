@@ -28,18 +28,17 @@ jobs:
       - name: Unit tests
         run: pytest -q
 
-      - name: Generate artifacts (KQL + Copy job specs)
-        run: |
-          python scripts/deploy_kql.py
-          python scripts/generate_copy_jobs.py
+      - name: Copy jobs in fabric/ match metadata
+        run: python scripts/generate_copy_jobs.py --check
 
-      - name: Upload generated artifacts
+      - name: Generate KQL
+        run: python scripts/deploy_kql.py
+
+      - name: Upload generated KQL
         uses: actions/upload-artifact@v4
         with:
-          name: generated
-          path: |
-            kql/generated/
-            build/copy_jobs/
+          name: kql
+          path: kql/generated/
 
       - name: Build framework wheel
         run: |

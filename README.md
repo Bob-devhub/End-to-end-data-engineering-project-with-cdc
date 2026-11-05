@@ -35,15 +35,18 @@ metadata/
     source_systems.yml
     entities/<system>/*.yml # batch + CDC entities (load methods, column mapping, DQ rules)
     streams/*.yml           # real-time streams (fields, aggregates, alerts)
-  ddl/001_control_tables.sql# control DB schema, views, logging procs
+    fabric.yml              # DEV Fabric connection ids used when rendering items
+  source_schemas/           # source column snapshot (scripts/snapshot_source_schema.py)
+  ddl/001_control_tables.sql# control DB bootstrap (then sqldb_control's synced project owns the schema)
 source/azure_sql/           # enable CDC + change simulator for the OLTP source
 src/cdc_framework/          # Python package (also built as a wheel for the Fabric Environment)
   config.py                 # pydantic metadata model + cross-entity validation
   dq.py                     # rules -> Spark SQL predicates, apply_dq()
   kql.py                    # stream metadata -> KQL tables, functions, update policies, MVs, alerts
-  copy_jobs.py              # entities -> Copy job specs (one per copy_job_group)
+  copy_jobs.py              # entities -> fabric/cj_*.CopyJob definitions (one per copy_job_group)
   control_db.py             # sync metadata -> control DB
-scripts/                    # validate_metadata, sync_metadata, generate_copy_jobs, deploy_kql
+  auth.py                   # Entra credential (az login / GitHub OIDC)
+scripts/                    # validate_metadata, sync_metadata, snapshot_source_schema, generate_copy_jobs, deploy_kql
 notebooks/                  # Fabric notebook sources (ingest files, bronze->silver, gold)
 simulator/                  # POS / IoT / clickstream event producer
 fabric/                     # Fabric Git integration folder (items synced from DEV) + parameter.yml
@@ -71,7 +74,7 @@ pytest -q
 python scripts/deploy_kql.py                # -> kql/generated/deploy.kql + alerts/
 ```
 ```bash
-python scripts/generate_copy_jobs.py        # -> build/copy_jobs/cj_*.json
+python scripts/generate_copy_jobs.py --check   # fabric/cj_*.CopyJob match metadata?
 ```
 ```bash
 python simulator/producer.py --dry-run --count 5
@@ -79,11 +82,12 @@ python simulator/producer.py --dry-run --count 5
 
 ## Build phases
 
-- [ ] **1. Foundations.** Create Azure SQL DB (serverless) and restore WideWorldImporters, then run
+- [x] **1. Foundations.** Create Azure SQL DB (serverless) and restore WideWorldImporters, then run
       `source/azure_sql/001_enable_cdc.sql`. Create the Fabric workspace, `sqldb_control` (run the DDL),
       and `lh_bronze`/`lh_silver`/`lh_gold`. Connect Git to `/fabric`.
-- [ ] **2. Warm path.** Build `cj_wwi_cdc_scd2` by hand, run `002_simulate_changes.sql`, and check the SCD2 rows
-      in Bronze. Commit it and follow [docs/copy-job-template.md](docs/copy-job-template.md).
+- [ ] **2. Warm path.** ~~Build `cj_wwi_cdc_scd2` by hand~~ (done, now rendered from metadata). Run
+      `002_simulate_changes.sql` and check the SCD2 rows in Bronze. ~~Build `cj_wwi_cdc_merge`~~ (done). Build `cj_wwi_watermark`
+      once by hand to capture its template ([docs/copy-job-template.md](docs/copy-job-template.md)).
 - [ ] **3. Metadata sync.** `scripts/sync_metadata.py`, then `pl_master` driven by `ctl.vw_*` views and logging procs.
 - [ ] **4. Silver and DQ.** Create the `env_cdc_framework` Environment with the CI wheel, then `nb_bronze_to_silver`.
 - [ ] **5. Cold path.** ADLS shortcut, `nb_ingest_files`, storage event trigger.
@@ -96,6 +100,8 @@ python simulator/producer.py --dry-run --count 5
 
 - **Azure SQL DB as the OLTP source, SQL database in Fabric as the control DB.** Copy job CDC
   doesn't support SQL database in Fabric as a source.
+- **Schema-enabled lakehouses.** Bronze mirrors the source (`lh_bronze.Sales.Customers`); Silver/Gold use `dbo`.
+- **Copy jobs are rendered, not hand-edited.** CI fails if `fabric/cj_*.CopyJob` drifts from metadata.
 - **One Copy job per `(read_method, write_method)` group.** Copy job applies both job-wide,
   and the validator enforces this.
 - **Single raw table in Eventhouse.** Update policies route by `event_type`, so adding a stream

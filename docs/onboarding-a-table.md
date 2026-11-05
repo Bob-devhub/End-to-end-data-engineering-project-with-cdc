@@ -8,8 +8,11 @@
    ```yaml
    entity_id: wwi_purchasing_suppliers
    system_id: wwi_oltp
-   source: { schema_name: Purchasing, table: Suppliers }
-   target: { lakehouse: lh_bronze, table: wwi_purchasing_suppliers, silver_table: suppliers }
+   source:
+     schema_name: Purchasing
+     table: Suppliers
+     exclude_columns: [DeliveryLocation]   # geography column
+   target: { lakehouse: lh_bronze, schema_name: Purchasing, table: Suppliers, silver_table: suppliers }
    load:
      ingestion_engine: copy_job
      read_method: cdc            # or watermark (+ watermark_column)
@@ -26,11 +29,23 @@
      - { rule_type: not_null, column: supplier_id, action: fail }
    ```
 
-3. `python scripts/validate_metadata.py`. This catches things like putting a
-   watermark table into a CDC copy job group.
-4. Open a PR. CI validates and regenerates the Copy job specs.
-5. After merge: add the table to the matching Copy job (manually for now, or
-   rendered from the spec once the template step is in place). Run the deploy workflow.
+3. Refresh the schema snapshot and render the Copy job:
+
+   ```bash
+   python scripts/validate_metadata.py        # e.g. a watermark table in a CDC group
+   python scripts/snapshot_source_schema.py   # picks up the new table's columns
+   python scripts/generate_copy_jobs.py       # updates fabric/cj_<group>.CopyJob
+   ```
+
+   The renderer tells you if the table has columns Delta can't store (geography
+   and similar) that need to go in `exclude_columns`.
+4. Open a PR with the YAML, the snapshot and the updated Copy job. CI validates
+   and checks that `fabric/` matches the metadata.
+5. After merge, update the DEV workspace from Git (Source control → Update).
+   Run the deploy workflow for TEST/PROD.
+
+Bronze tables keep the source schema and table name (`lh_bronze.Purchasing.Suppliers`)
+because the lakehouses are schema-enabled and that's what Copy job writes.
 
 Pick `copy_job_group` by **(read_method, write_method)**. Copy job applies both
 to every table in the job, and mixing CDC with non-CDC tables silently

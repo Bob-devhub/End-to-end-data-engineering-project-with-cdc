@@ -34,6 +34,8 @@ class SourceSystem(_Model):
     type: SourceType
     description: str = ""
     connection_name: str
+    fabric_connection_id: str | None = None  # DEV id; fabric/parameter.yml swaps it per environment
+    server: str | None = None
     database: str | None = None
     container: str | None = None
     base_path: str | None = None
@@ -85,12 +87,26 @@ class EntitySource(_Model):
     file_pattern: str | None = None
     format: Literal["csv", "json", "parquet"] | None = None
     options: dict[str, str] = Field(default_factory=dict)
+    # Source columns left out of the Copy job mapping (e.g. geography, which Delta can't store)
+    exclude_columns: list[str] = Field(default_factory=list)
 
 
 class EntityTarget(_Model):
+    """Lakehouses are schema-enabled, so every table is addressed as schema.table."""
+
     lakehouse: str = "lh_bronze"
+    schema_name: str = "dbo"
     table: str
+    silver_schema: str = "dbo"
     silver_table: str
+
+    @property
+    def bronze_name(self) -> str:
+        return f"{self.schema_name}.{self.table}"
+
+    @property
+    def silver_name(self) -> str:
+        return f"{self.silver_schema}.{self.silver_table}"
 
 
 class LoadConfig(_Model):
@@ -196,8 +212,15 @@ class Stream(_Model):
 # --------------------------------------------------------------------------- whole project
 
 
+class FabricSettings(_Model):
+    """DEV item/connection ids used when rendering Fabric item definitions."""
+
+    lakehouse_connections: dict[str, str] = Field(default_factory=dict)
+
+
 class Metadata(_Model):
     source_systems: list[SourceSystem]
+    fabric: FabricSettings = Field(default_factory=FabricSettings)
     entities: list[Entity] = Field(default_factory=list)
     streams: list[Stream] = Field(default_factory=list)
 
@@ -207,6 +230,7 @@ class Metadata(_Model):
         _require_unique("entity_id", [e.entity_id for e in self.entities])
         _require_unique("stream_id", [s.stream_id for s in self.streams])
         _require_unique("stream table", [s.table for s in self.streams])
+        _require_unique("bronze table", [e.target.bronze_name.lower() for e in self.entities])
 
         systems = {s.system_id: s for s in self.source_systems}
         for e in self.entities:
@@ -269,6 +293,8 @@ def load_metadata(config_dir: str | Path = "metadata/config") -> Metadata:
     """Load and validate every YAML file under config_dir."""
     root = Path(config_dir)
     systems = _read_yaml(root / "source_systems.yml").get("source_systems", [])
+    fabric_file = root / "fabric.yml"
+    fabric = _read_yaml(fabric_file) if fabric_file.exists() else {}
     entities = [_read_yaml(p) for p in sorted((root / "entities").rglob("*.yml"))]
     streams = [_read_yaml(p) for p in sorted((root / "streams").rglob("*.yml"))]
-    return Metadata(source_systems=systems, entities=entities, streams=streams)
+    return Metadata(source_systems=systems, fabric=fabric, entities=entities, streams=streams)

@@ -2,11 +2,11 @@
 # Star schema for the Direct Lake semantic model. Joins batch Silver with
 # real-time Eventhouse tables exposed through OneLake availability.
 #
-# Default lakehouse: lh_gold. Attach lh_silver. Add a OneLake shortcut in
+# Default lakehouse: lh_gold (schema-enabled; gold tables go to dbo). Attach lh_silver. Add a OneLake shortcut in
 # lh_gold Tables/ named rt_pos_transactions -> Eventhouse table pos_transactions.
 
 # %% [parameters]
-silver = "lh_silver"
+silver = "lh_silver.dbo"   # schema-enabled lakehouse: lakehouse.schema
 
 # %% dim_customer (SCD2 from Copy job -> current + history)
 spark.sql(f"""

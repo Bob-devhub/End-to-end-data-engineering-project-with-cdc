@@ -12,14 +12,14 @@ from the Source control pane.
 
 | Item | Type | Purpose |
 |---|---|---|
-| `sqldb_control` | SQL database | Control plane. Run `metadata/ddl/001_control_tables.sql` |
-| `lh_bronze` | Lakehouse | Copy job targets + raw file ingests. Shortcut `Files/landing` → ADLS `landing` container |
+| `sqldb_control` | SQL database | Control plane. Bootstrapped with `metadata/ddl/001_control_tables.sql`; its synced database project here is now the schema source of truth |
+| `lh_bronze` | Lakehouse (schemas enabled) | Copy job targets as `<SourceSchema>.<Table>`, file ingests in `partner.*`. Shortcut `Files/landing` → ADLS `landing` container |
 | `lh_silver` | Lakehouse | Cleansed, typed, DQ-checked tables |
 | `lh_gold` | Lakehouse | Star schema. Shortcut `Tables/rt_pos_transactions` → Eventhouse table |
 | `env_cdc_framework` | Environment | Custom library: the `cdc_framework` wheel from CI |
-| `cj_wwi_cdc_scd2` | Copy job | Customers, StockItems — CDC read, SCD Type 2 write |
-| `cj_wwi_cdc_merge` | Copy job | Orders, OrderLines — CDC read, Merge write |
-| `cj_wwi_watermark` | Copy job | StockItemHoldings — watermark on `LastEditedWhen`, Merge write |
+| `cj_wwi_cdc_scd2` | Copy job | Customers, StockItems: CDC read, SCD Type 2 write. **Rendered from metadata** by `scripts/generate_copy_jobs.py` |
+| `cj_wwi_cdc_merge` | Copy job | Orders, OrderLines: CDC read, Merge write. **Rendered from metadata** |
+| `cj_wwi_watermark` | Copy job | StockItemHoldings: watermark on `LastEditedWhen`, Merge write. Build by hand once to capture the template |
 | `nb_ingest_files` | Notebook | Paste from `notebooks/nb_ingest_files.py` |
 | `nb_bronze_to_silver` | Notebook | Paste from `notebooks/nb_bronze_to_silver.py` |
 | `nb_build_gold` | Notebook | Paste from `notebooks/nb_build_gold.py` |

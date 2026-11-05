@@ -1,0 +1,849 @@
+{
+  "Sales.Customers": [
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "CustomerID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 100,
+      "name": "CustomerName",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "BillToCustomerID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "CustomerCategoryID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "BuyingGroupID",
+      "nullable": true,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "PrimaryContactPersonID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "AlternateContactPersonID",
+      "nullable": true,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "DeliveryMethodID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "DeliveryCityID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "PostalCityID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "decimal",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "CreditLimit",
+      "nullable": true,
+      "precision": 18,
+      "scale": 2
+    },
+    {
+      "data_type": "date",
+      "datetime_precision": 0,
+      "max_length": null,
+      "name": "AccountOpenedDate",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "decimal",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "StandardDiscountPercentage",
+      "nullable": false,
+      "precision": 18,
+      "scale": 3
+    },
+    {
+      "data_type": "bit",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "IsStatementSent",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "bit",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "IsOnCreditHold",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "PaymentDays",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 20,
+      "name": "PhoneNumber",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 20,
+      "name": "FaxNumber",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 5,
+      "name": "DeliveryRun",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 5,
+      "name": "RunPosition",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 256,
+      "name": "WebsiteURL",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 60,
+      "name": "DeliveryAddressLine1",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 60,
+      "name": "DeliveryAddressLine2",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 10,
+      "name": "DeliveryPostalCode",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "geography",
+      "datetime_precision": null,
+      "max_length": -1,
+      "name": "DeliveryLocation",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 60,
+      "name": "PostalAddressLine1",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 60,
+      "name": "PostalAddressLine2",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 10,
+      "name": "PostalPostalCode",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "LastEditedBy",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "datetime2",
+      "datetime_precision": 7,
+      "max_length": null,
+      "name": "ValidFrom",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "datetime2",
+      "datetime_precision": 7,
+      "max_length": null,
+      "name": "ValidTo",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    }
+  ],
+  "Sales.OrderLines": [
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "OrderLineID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "OrderID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "StockItemID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 100,
+      "name": "Description",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "PackageTypeID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "Quantity",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "decimal",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "UnitPrice",
+      "nullable": true,
+      "precision": 18,
+      "scale": 2
+    },
+    {
+      "data_type": "decimal",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "TaxRate",
+      "nullable": false,
+      "precision": 18,
+      "scale": 3
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "PickedQuantity",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "datetime2",
+      "datetime_precision": 7,
+      "max_length": null,
+      "name": "PickingCompletedWhen",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "LastEditedBy",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "datetime2",
+      "datetime_precision": 7,
+      "max_length": null,
+      "name": "LastEditedWhen",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    }
+  ],
+  "Sales.Orders": [
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "OrderID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "CustomerID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "SalespersonPersonID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "PickedByPersonID",
+      "nullable": true,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "ContactPersonID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "BackorderOrderID",
+      "nullable": true,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "date",
+      "datetime_precision": 0,
+      "max_length": null,
+      "name": "OrderDate",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "date",
+      "datetime_precision": 0,
+      "max_length": null,
+      "name": "ExpectedDeliveryDate",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 20,
+      "name": "CustomerPurchaseOrderNumber",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "bit",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "IsUndersupplyBackordered",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": -1,
+      "name": "Comments",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": -1,
+      "name": "DeliveryInstructions",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": -1,
+      "name": "InternalComments",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "datetime2",
+      "datetime_precision": 7,
+      "max_length": null,
+      "name": "PickingCompletedWhen",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "LastEditedBy",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "datetime2",
+      "datetime_precision": 7,
+      "max_length": null,
+      "name": "LastEditedWhen",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    }
+  ],
+  "Warehouse.StockItemHoldings": [
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "StockItemID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "QuantityOnHand",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 20,
+      "name": "BinLocation",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "LastStocktakeQuantity",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "decimal",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "LastCostPrice",
+      "nullable": false,
+      "precision": 18,
+      "scale": 2
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "ReorderLevel",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "TargetStockLevel",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "LastEditedBy",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "datetime2",
+      "datetime_precision": 7,
+      "max_length": null,
+      "name": "LastEditedWhen",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    }
+  ],
+  "Warehouse.StockItems": [
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "StockItemID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 100,
+      "name": "StockItemName",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "SupplierID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "ColorID",
+      "nullable": true,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "UnitPackageID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "OuterPackageID",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 50,
+      "name": "Brand",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 20,
+      "name": "Size",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "LeadTimeDays",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "QuantityPerOuter",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "bit",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "IsChillerStock",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": 50,
+      "name": "Barcode",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "decimal",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "TaxRate",
+      "nullable": false,
+      "precision": 18,
+      "scale": 3
+    },
+    {
+      "data_type": "decimal",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "UnitPrice",
+      "nullable": false,
+      "precision": 18,
+      "scale": 2
+    },
+    {
+      "data_type": "decimal",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "RecommendedRetailPrice",
+      "nullable": true,
+      "precision": 18,
+      "scale": 2
+    },
+    {
+      "data_type": "decimal",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "TypicalWeightPerUnit",
+      "nullable": false,
+      "precision": 18,
+      "scale": 3
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": -1,
+      "name": "MarketingComments",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": -1,
+      "name": "InternalComments",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "varbinary",
+      "datetime_precision": null,
+      "max_length": -1,
+      "name": "Photo",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": -1,
+      "name": "CustomFields",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": -1,
+      "name": "Tags",
+      "nullable": true,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "nvarchar",
+      "datetime_precision": null,
+      "max_length": -1,
+      "name": "SearchDetails",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "int",
+      "datetime_precision": null,
+      "max_length": null,
+      "name": "LastEditedBy",
+      "nullable": false,
+      "precision": 10,
+      "scale": 0
+    },
+    {
+      "data_type": "datetime2",
+      "datetime_precision": 7,
+      "max_length": null,
+      "name": "ValidFrom",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    },
+    {
+      "data_type": "datetime2",
+      "datetime_precision": 7,
+      "max_length": null,
+      "name": "ValidTo",
+      "nullable": false,
+      "precision": null,
+      "scale": null
+    }
+  ]
+}

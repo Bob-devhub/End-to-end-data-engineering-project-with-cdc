@@ -3,7 +3,7 @@
     python scripts/sync_metadata.py --dry-run
     python scripts/sync_metadata.py --server <host> --database <db>
 
-Auth uses DefaultAzureCredential (az login locally, OIDC in GitHub Actions).
+Auth: az login locally, OIDC (azure/login) in GitHub Actions - see cdc_framework.auth.
 """
 
 from __future__ import annotations

@@ -6,6 +6,8 @@ source_systems:
     type: azure_sql
     description: WideWorldImporters operational DB on wwimportsserver (Azure SQL DB, CDC enabled)
     connection_name: conn-azsql-wwi
+    fabric_connection_id: 0c392ce3-5e9b-480c-ad22-281bd9428842   # DEV - swapped by fabric/parameter.yml
+    server: wwimportsserver.database.windows.net
     database: WideWorldImporters-Standard
 
   - system_id: partner_files

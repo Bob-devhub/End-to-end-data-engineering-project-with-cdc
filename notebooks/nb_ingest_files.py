@@ -22,7 +22,8 @@ assert entity.load.ingestion_engine == "notebook", f"{entity.entity_id} is not a
 
 SHORTCUT_ROOT = "Files/landing/partners"
 source_path = trigger_file or f"{SHORTCUT_ROOT}/{entity.source.file_pattern}"
-target_table = entity.target.table
+target_table = entity.target.bronze_name  # schema-enabled lakehouse: schema.table
+spark.sql(f"CREATE SCHEMA IF NOT EXISTS {entity.target.schema_name}")
 print(f"[{entity.entity_id}] reading {source_path} -> {target_table}")
 
 # %%

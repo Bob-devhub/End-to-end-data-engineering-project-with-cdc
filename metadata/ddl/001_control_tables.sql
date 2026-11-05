@@ -2,6 +2,11 @@
    Control plane for the metadata-driven framework.
    Target: SQL database in Fabric (sqldb_control). Idempotent - safe to re-run.
 
+   BOOTSTRAP ONLY. After the first run, sqldb_control is synced to Git as a
+   database project (fabric/sqldb_control.SQLDatabase/), which is now the
+   source of truth for the schema. Make schema changes in Fabric (or that
+   project) and commit; fabric-cicd deploys them.
+
    Config tables  (reloaded from Git by scripts/sync_metadata.py):
        ctl.source_system, ctl.source_entity, ctl.column_mapping, ctl.dq_rule,
        ctl.stream_entity, ctl.alert_rule

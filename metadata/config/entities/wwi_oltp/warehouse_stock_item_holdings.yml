@@ -13,7 +13,8 @@ source:
 
 target:
   lakehouse: lh_bronze
-  table: wwi_warehouse_stock_item_holdings
+  schema_name: Warehouse
+  table: StockItemHoldings
   silver_table: stock_holdings
 
 load:

@@ -7,10 +7,12 @@ priority: 10
 source:
   schema_name: Sales
   table: Customers
+  exclude_columns: [DeliveryLocation]   # geography - not supported by Delta
 
 target:
   lakehouse: lh_bronze
-  table: wwi_sales_customers
+  schema_name: Sales
+  table: Customers
   silver_table: customers
 
 load:

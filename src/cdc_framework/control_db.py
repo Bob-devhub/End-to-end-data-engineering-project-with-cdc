@@ -29,9 +29,10 @@ CONFIG_TABLES = [
 def connect(server: str, database: str):
     """Connect with Entra ID (az login locally, OIDC service principal in GitHub Actions)."""
     import pyodbc
-    from azure.identity import DefaultAzureCredential
 
-    token = DefaultAzureCredential().get_token("https://database.windows.net/.default").token
+    from cdc_framework.auth import get_credential
+
+    token = get_credential().get_token("https://database.windows.net/.default").token
     raw = token.encode("utf-16-le")
     token_struct = struct.pack(f"<I{len(raw)}s", len(raw), raw)
     conn_str = (
@@ -54,7 +55,7 @@ def build_rows(md: Metadata) -> dict[str, list[tuple[Any, ...]]]:
                 e.entity_id, e.system_id, e.description, e.is_active, e.priority,
                 e.load.ingestion_engine, e.load.read_method, e.load.write_method, e.load.copy_job_group,
                 e.source.schema_name, e.source.table, e.source.file_pattern, e.source.format,
-                e.target.lakehouse, e.target.table, e.target.silver_table,
+                e.target.lakehouse, e.target.bronze_name, e.target.silver_name,
                 ",".join(e.load.primary_keys) or None, e.load.watermark_column,
                 e.model_dump_json(),
             )

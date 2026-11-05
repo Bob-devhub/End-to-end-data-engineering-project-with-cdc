@@ -20,7 +20,7 @@ from cdc_framework.config import Entity
 from cdc_framework.dq import apply_dq
 
 entity = Entity.model_validate_json(entity_config_json)
-bronze = spark.table(f"{bronze_lakehouse}.{entity.target.table}")
+bronze = spark.table(f"{bronze_lakehouse}.{entity.target.bronze_name}")  # lakehouse.schema.table
 rows_read = bronze.count()
 print(f"[{entity.entity_id}] {rows_read} bronze rows")
 
@@ -57,14 +57,15 @@ rows_quarantined = quarantine.count()
 # %% write
 # Full rebuild from Bronze keeps Silver simple and idempotent.
 # Next step: switch to incremental using Delta change data feed on Bronze.
+spark.sql(f"CREATE SCHEMA IF NOT EXISTS {entity.target.silver_schema}")
 valid.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable(
-    entity.target.silver_table
+    entity.target.silver_name
 )
 if rows_quarantined:
     (
         quarantine.withColumn("_pipeline_run_id", F.lit(pipeline_run_id))
         .write.format("delta").mode("append").option("mergeSchema", "true")
-        .saveAsTable(f"quarantine_{entity.target.silver_table}")
+        .saveAsTable(f"{entity.target.silver_schema}.quarantine_{entity.target.silver_table}")
     )
 
 result = {

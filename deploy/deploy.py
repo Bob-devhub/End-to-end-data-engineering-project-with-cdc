@@ -3,7 +3,7 @@
     python deploy/deploy.py --environment TEST
 
 Environment-specific IDs (lakehouses, connections, KQL DB) are swapped using
-deploy/parameter.yml. Auth: DefaultAzureCredential (OIDC service principal in CI).
+fabric/parameter.yml. Auth: az login locally, OIDC service principal (azure/login) in CI.
 """
 
 from __future__ import annotations
@@ -12,6 +12,8 @@ import argparse
 import os
 import sys
 from pathlib import Path
+
+from cdc_framework.auth import get_credential
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -43,7 +45,6 @@ def main() -> int:
     if not workspace_id:
         parser.error(f"--workspace-id or FABRIC_WORKSPACE_ID_{args.environment} is required")
 
-    from azure.identity import DefaultAzureCredential
     from fabric_cicd import FabricWorkspace, publish_all_items, unpublish_all_orphan_items
 
     # Check each type against the fabric-cicd supported item list for your installed version.
@@ -52,7 +53,7 @@ def main() -> int:
         environment=args.environment,
         repository_directory=str(ROOT / "fabric"),
         item_type_in_scope=ITEM_TYPES,
-        token_credential=DefaultAzureCredential(),
+        token_credential=get_credential(),
     )
     publish_all_items(workspace)
     if args.unpublish_orphans:

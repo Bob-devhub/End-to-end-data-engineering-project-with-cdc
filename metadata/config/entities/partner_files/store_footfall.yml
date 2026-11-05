@@ -12,7 +12,8 @@ source:
 
 target:
   lakehouse: lh_bronze
-  table: partner_store_footfall
+  schema_name: partner
+  table: store_footfall
   silver_table: store_footfall
 
 load:
