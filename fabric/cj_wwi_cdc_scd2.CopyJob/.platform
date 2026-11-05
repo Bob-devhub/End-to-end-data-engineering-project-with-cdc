@@ -2,7 +2,7 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
   "metadata": {
     "type": "CopyJob",
-    "displayName": "cj_wwi_cdc_scd2_"
+    "displayName": "cj_wwi_cdc_scd2"
   },
   "config": {
     "version": "2.0",
