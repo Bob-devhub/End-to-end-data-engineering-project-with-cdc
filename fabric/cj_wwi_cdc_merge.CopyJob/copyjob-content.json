@@ -1,0 +1,117 @@
+{
+  "properties": {
+    "jobMode": "CDC",
+    "fullLoadBehavior": "Truncate",
+    "source": {
+      "type": "AzureSqlTable",
+      "connectionSettings": {
+        "type": "AzureSqlDatabase",
+        "externalReferences": {
+          "connection": "0c392ce3-5e9b-480c-ad22-281bd9428842"
+        }
+      }
+    },
+    "destination": {
+      "type": "LakehouseTable",
+      "connectionSettings": {
+        "type": "Lakehouse",
+        "typeProperties": {
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "artifactId": "b82758e9-c67a-a713-4ec3-0e1ad0fc3f77",
+          "rootFolder": "Tables"
+        },
+        "externalReferences": {
+          "connection": "b78c7ad5-0fb4-4519-9aa2-040611e7760b"
+        }
+      }
+    },
+    "policy": {
+      "timeout": "0.12:00:00",
+      "retry": 0
+    }
+  },
+  "activities": [
+    {
+      "id": "a47fec02-d602-4827-b2d0-7f69dae299aa",
+      "properties": {
+        "source": {
+          "datasetSettings": {
+            "schema": "Sales",
+            "table": "OrderLines"
+          },
+          "changeDataSettings": {
+            "readMethod": "SnapshotPlusIncremental"
+          },
+          "partitionSettings": {
+            "partitionOption": "None"
+          }
+        },
+        "destination": {
+          "upsertSettings": {
+            "keys": [
+              "OrderLineID"
+            ]
+          },
+          "writeBehavior": "SCD2",
+          "datasetSettings": {
+            "schema": "Sales",
+            "table": "OrderLines"
+          },
+          "applyVOrder": false,
+          "enableTimestampNtz": false
+        },
+        "enableStaging": false,
+        "translator": {
+          "type": "TabularTranslator"
+        },
+        "typeConversionSettings": {
+          "typeConversion": {
+            "allowDataTruncation": true,
+            "treatBooleanAsNumber": false
+          }
+        }
+      }
+    },
+    {
+      "id": "622f3aae-7209-42db-968c-f4c8851c378f",
+      "properties": {
+        "source": {
+          "datasetSettings": {
+            "schema": "Sales",
+            "table": "Orders"
+          },
+          "changeDataSettings": {
+            "readMethod": "SnapshotPlusIncremental"
+          },
+          "partitionSettings": {
+            "partitionOption": "None"
+          }
+        },
+        "destination": {
+          "upsertSettings": {
+            "keys": [
+              "OrderID"
+            ]
+          },
+          "writeBehavior": "SCD2",
+          "datasetSettings": {
+            "schema": "Sales",
+            "table": "Orders"
+          },
+          "applyVOrder": false,
+          "enableTimestampNtz": false
+        },
+        "enableStaging": false,
+        "translator": {
+          "type": "TabularTranslator"
+        },
+        "typeConversionSettings": {
+          "typeConversion": {
+            "allowDataTruncation": true,
+            "treatBooleanAsNumber": false
+          }
+        }
+      }
+    }
+  ]
+}
