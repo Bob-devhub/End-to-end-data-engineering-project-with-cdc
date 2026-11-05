@@ -17,6 +17,10 @@ IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = DB_NAME() AND is_cdc_ena
     EXEC sys.sp_cdc_enable_db;
 GO
 
+-- Stop here if enabling CDC on the database failed (e.g. unsupported service tier).
+IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = DB_NAME() AND is_cdc_enabled = 1)
+    THROW 50001, 'CDC is not enabled on this database - fix the error above (service tier?) and re-run.', 1;
+
 DECLARE @tables TABLE (schema_name SYSNAME, table_name SYSNAME);
 INSERT INTO @tables VALUES
     (N'Sales',     N'Customers'),
@@ -34,12 +38,17 @@ BEGIN
         SELECT 1 FROM sys.tables tb JOIN sys.schemas sc ON sc.schema_id = tb.schema_id
         WHERE sc.name = @s AND tb.name = @t AND tb.is_tracked_by_cdc = 1)
     BEGIN
-        EXEC sys.sp_cdc_enable_table
-             @source_schema = @s,
-             @source_name = @t,
-             @role_name = NULL,
-             @supports_net_changes = 1;
-        PRINT CONCAT('CDC enabled on ', @s, '.', @t);
+        BEGIN TRY
+            EXEC sys.sp_cdc_enable_table
+                 @source_schema = @s,
+                 @source_name = @t,
+                 @role_name = NULL,
+                 @supports_net_changes = 1;
+            PRINT CONCAT('CDC enabled on ', @s, '.', @t);
+        END TRY
+        BEGIN CATCH
+            PRINT CONCAT('FAILED to enable CDC on ', @s, '.', @t, ': ', ERROR_MESSAGE());
+        END CATCH
     END
     FETCH NEXT FROM c INTO @s, @t;
 END

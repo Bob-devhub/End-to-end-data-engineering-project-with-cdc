@@ -4,9 +4,9 @@
 source_systems:
   - system_id: wwi_oltp
     type: azure_sql
-    description: WideWorldImporters operational DB (Azure SQL DB, CDC enabled)
+    description: WideWorldImporters operational DB on wwimportsserver (Azure SQL DB, CDC enabled)
     connection_name: conn-azsql-wwi
-    database: WideWorldImporters
+    database: WideWorldImporters-Standard
 
   - system_id: partner_files
     type: adls
