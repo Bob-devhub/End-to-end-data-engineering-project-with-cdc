@@ -47,7 +47,7 @@ src/cdc_framework/          # Python package (also built as a wheel for the Fabr
   control_db.py             # sync metadata -> control DB
   auth.py                   # Entra credential (az login / GitHub OIDC)
 scripts/                    # validate_metadata, sync_metadata, snapshot_source_schema, generate_copy_jobs, deploy_kql
-notebooks/                  # Fabric notebook sources (ingest files, bronze->silver, gold)
+notebooks/                  # notebook drafts not yet created in Fabric (once synced, fabric/<nb>.Notebook is the source)
 simulator/                  # POS / IoT / clickstream event producer
 fabric/                     # Fabric Git integration folder (items synced from DEV) + parameter.yml
 deploy/deploy.py            # fabric-cicd promotion to TEST/PROD
@@ -89,7 +89,7 @@ python simulator/producer.py --dry-run --count 5
       `002_simulate_changes.sql` and check the SCD2 rows in Bronze. All three Copy jobs are
       now rendered from metadata ([docs/copy-job-template.md](docs/copy-job-template.md)).
 - [ ] **3. Metadata sync.** `scripts/sync_metadata.py`, then `pl_master` driven by `ctl.vw_*` views and logging procs.
-- [ ] **4. Silver and DQ.** Create the `env_cdc_framework` Environment with the CI wheel, then `nb_bronze_to_silver`.
+- [x] **4. Silver and DQ.** `env_cdc_framework` (Runtime 2.0 + wheel) and `nb_bronze_to_silver`; verified on Customers (SCD2).
 - [ ] **5. Cold path.** ADLS shortcut, `nb_ingest_files`, storage event trigger.
 - [ ] **6. Hot path.** Eventhouse plus `deploy_kql.py --apply`, Eventstream custom endpoint, simulator,
       Real-Time Dashboard, Activator (`--freezer-fault-store 7` to trigger the alert).

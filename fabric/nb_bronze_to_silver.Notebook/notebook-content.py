@@ -33,7 +33,7 @@
 # META   }
 # META }
 
-# CELL ********************
+# PARAMETERS CELL ********************
 
 # Fabric notebook source: nb_bronze_to_silver
 # Generic Bronze -> Silver: rename + cast from column_mapping, metadata-driven DQ,
@@ -65,7 +65,6 @@ from pyspark.sql import functions as F
 from cdc_framework.config import Entity
 from cdc_framework.dq import apply_dq
 
-entity_config_json = r'''{"entity_id":"wwi_sales_customers","system_id":"wwi_oltp","description":"Customer master - history tracked (SCD2) by Copy job","is_active":true,"priority":10,"source":{"schema_name":"Sales","table":"Customers","file_pattern":null,"format":null,"options":{},"exclude_columns":["DeliveryLocation"]},"target":{"lakehouse":"lh_bronze","schema_name":"Sales","table":"Customers","silver_schema":"dbo","silver_table":"customers"},"load":{"ingestion_engine":"copy_job","read_method":"cdc","write_method":"scd2","copy_job_group":"wwi_cdc_scd2","primary_keys":["CustomerID"],"watermark_column":null},"columns":[{"source":"CustomerID","target":"customer_id","type":"int","nullable":false},{"source":"CustomerName","target":"customer_name","type":"string","nullable":false},{"source":"CustomerCategoryID","target":"customer_category_id","type":"int","nullable":true},{"source":"DeliveryCityID","target":"delivery_city_id","type":"int","nullable":true},{"source":"CreditLimit","target":"credit_limit","type":"decimal(18,2)","nullable":true},{"source":"AccountOpenedDate","target":"account_opened_date","type":"date","nullable":true},{"source":"ValidFrom","target":"source_valid_from","type":"timestamp","nullable":true},{"source":"copyjob_valid_from","target":"valid_from","type":"timestamp","nullable":true},{"source":"copyjob_valid_to","target":"valid_to","type":"timestamp","nullable":true},{"source":"copyjob_is_current","target":"is_current","type":"boolean","nullable":true}],"dq_rules":[{"rule_type":"not_null","column":"customer_id","action":"fail","min":null,"max":null,"pattern":null,"values":null,"threshold":0.0},{"rule_type":"not_null","column":"customer_name","action":"quarantine","min":null,"max":null,"pattern":null,"values":null,"threshold":0.0},{"rule_type":"range","column":"credit_limit","action":"warn","min":0.0,"max":null,"pattern":null,"values":null,"threshold":0.0}]}'''
 entity = Entity.model_validate_json(entity_config_json)
 bronze = spark.table(f"{bronze_lakehouse}.{entity.target.bronze_name}")  # lakehouse.schema.table
 rows_read = bronze.count()

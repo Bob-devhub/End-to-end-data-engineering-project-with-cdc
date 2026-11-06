@@ -20,9 +20,9 @@ from the Source control pane.
 | `cj_wwi_cdc_scd2` | Copy job | Customers, StockItems: CDC read, SCD Type 2 write. **Rendered from metadata** by `scripts/generate_copy_jobs.py` |
 | `cj_wwi_cdc_merge` | Copy job | Orders, OrderLines: CDC read, Merge write. **Rendered from metadata** |
 | `cj_wwi_watermark` | Copy job | StockItemHoldings: watermark on `LastEditedWhen`, Merge write. **Rendered from metadata** |
-| `nb_ingest_files` | Notebook | Paste from `notebooks/nb_ingest_files.py` |
-| `nb_bronze_to_silver` | Notebook | Paste from `notebooks/nb_bronze_to_silver.py` |
-| `nb_build_gold` | Notebook | Paste from `notebooks/nb_build_gold.py` |
+| `nb_ingest_files` | Notebook | Paste from `notebooks/nb_ingest_files.py`, then delete that file once synced here |
+| `nb_bronze_to_silver` | Notebook | Created; source of truth is `fabric/nb_bronze_to_silver.Notebook/` (edit in Fabric, commit) |
+| `nb_build_gold` | Notebook | Paste from `notebooks/nb_build_gold.py`, then delete that file once synced here |
 | `pl_master` | Data pipeline | Orchestration (below) |
 | `pl_file_arrival` | Data pipeline | Storage event trigger on ADLS `landing/partners/**` |
 | `eh_retail_rt` / `kql_retail_rt` | Eventhouse / KQL DB | Hot path. Objects from `scripts/deploy_kql.py --apply` |
