@@ -1,5 +1,37 @@
 # Fabric notebook source
 
+# METADATA ********************
+
+# META {
+# META   "kernel_info": {
+# META     "name": "synapse_pyspark"
+# META   },
+# META   "dependencies": {
+# META     "lakehouse": {
+# META       "default_lakehouse": "c27cfc12-93fe-496e-bb9e-1dac7562add1",
+# META       "default_lakehouse_name": "lh_silver",
+# META       "default_lakehouse_workspace_id": "9d04974e-4eed-49f7-8f94-d136f1e83a45",
+# META       "known_lakehouses": [
+# META         {
+# META           "id": "c27cfc12-93fe-496e-bb9e-1dac7562add1"
+# META         }
+# META       ]
+# META     },
+# META     "environment": {
+# META       "environmentId": "1f312b0b-0741-afc0-43c6-d007484d8eff",
+# META       "workspaceId": "00000000-0000-0000-0000-000000000000"
+# META     },
+# META     "warehouse": {
+# META       "default_warehouse": "c6f0a24c-8418-4d84-a461-cc770f84ec72",
+# META       "known_warehouses": [
+# META         {
+# META           "id": "c6f0a24c-8418-4d84-a461-cc770f84ec72",
+# META           "type": "Lakewarehouse"
+# META         }
+# META       ]
+# META     }
+# META   }
+# META }
 
 # CELL ********************
 
@@ -16,6 +48,15 @@ entity_config_json = "{}"
 pipeline_run_id = "manual"
 bronze_lakehouse = "lh_bronze"
 
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
 # %%
 import json
 
@@ -24,10 +65,20 @@ from pyspark.sql import functions as F
 from cdc_framework.config import Entity
 from cdc_framework.dq import apply_dq
 
+entity_config_json = r'''{"entity_id":"wwi_sales_customers","system_id":"wwi_oltp","description":"Customer master - history tracked (SCD2) by Copy job","is_active":true,"priority":10,"source":{"schema_name":"Sales","table":"Customers","file_pattern":null,"format":null,"options":{},"exclude_columns":["DeliveryLocation"]},"target":{"lakehouse":"lh_bronze","schema_name":"Sales","table":"Customers","silver_schema":"dbo","silver_table":"customers"},"load":{"ingestion_engine":"copy_job","read_method":"cdc","write_method":"scd2","copy_job_group":"wwi_cdc_scd2","primary_keys":["CustomerID"],"watermark_column":null},"columns":[{"source":"CustomerID","target":"customer_id","type":"int","nullable":false},{"source":"CustomerName","target":"customer_name","type":"string","nullable":false},{"source":"CustomerCategoryID","target":"customer_category_id","type":"int","nullable":true},{"source":"DeliveryCityID","target":"delivery_city_id","type":"int","nullable":true},{"source":"CreditLimit","target":"credit_limit","type":"decimal(18,2)","nullable":true},{"source":"AccountOpenedDate","target":"account_opened_date","type":"date","nullable":true},{"source":"ValidFrom","target":"source_valid_from","type":"timestamp","nullable":true},{"source":"copyjob_valid_from","target":"valid_from","type":"timestamp","nullable":true},{"source":"copyjob_valid_to","target":"valid_to","type":"timestamp","nullable":true},{"source":"copyjob_is_current","target":"is_current","type":"boolean","nullable":true}],"dq_rules":[{"rule_type":"not_null","column":"customer_id","action":"fail","min":null,"max":null,"pattern":null,"values":null,"threshold":0.0},{"rule_type":"not_null","column":"customer_name","action":"quarantine","min":null,"max":null,"pattern":null,"values":null,"threshold":0.0},{"rule_type":"range","column":"credit_limit","action":"warn","min":0.0,"max":null,"pattern":null,"values":null,"threshold":0.0}]}'''
 entity = Entity.model_validate_json(entity_config_json)
 bronze = spark.table(f"{bronze_lakehouse}.{entity.target.bronze_name}")  # lakehouse.schema.table
 rows_read = bronze.count()
 print(f"[{entity.entity_id}] {rows_read} bronze rows")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
 
 # %% rename + cast
 has_ingested_at = "_ingested_at" in bronze.columns
@@ -57,9 +108,27 @@ if has_ingested_at:
     silver = silver.drop("_ingested_at")
 silver = silver.withColumn("_silver_loaded_at", F.current_timestamp())
 
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
 # %% data quality
 valid, quarantine, dq_results = apply_dq(silver, entity.dq_rules)
 rows_quarantined = quarantine.count()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
 
 # %% write
 # Full rebuild from Bronze keeps Silver simple and idempotent.
@@ -84,3 +153,10 @@ result = {
 }
 print(json.dumps(result, indent=2))
 notebookutils.notebook.exit(json.dumps(result))  # noqa: F821 - provided by Fabric runtime
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
