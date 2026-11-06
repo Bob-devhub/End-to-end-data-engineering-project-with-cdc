@@ -35,17 +35,17 @@ Key fields:
 Connection ids are DEV values. `fabric/parameter.yml` swaps them for TEST and
 PROD. fabric-cicd handles the logicalId and "same workspace" zeros itself.
 
-## Adding the other read/write combinations
+## Supported read/write combinations
 
-Captured so far: `(cdc, scd2)` and `(cdc, scd1_merge)`. `cj_wwi_watermark` is
-reported as `skipped` until it has an example:
+| read_method | write_method | Captured from | Notes |
+|---|---|---|---|
+| `cdc` | `scd2` | `cj_wwi_cdc_scd2` | `writeBehavior: SCD2` |
+| `cdc` | `scd1_merge` | `cj_wwi_cdc_merge` | the UI's Merge is stored as `writeBehavior: Upsert` |
+| `watermark` | `scd1_merge` | `cj_wwi_watermark` | same `jobMode`/`readMethod` as CDC; `changeDataSettings` adds `columns` (the incremental column, typed from the snapshot) and `nullWatermarkBehavior: Skip` |
 
-1. Build the job by hand in DEV with the exact name `cj_wwi_watermark`
-   (watermark on `LastEditedWhen`, Merge write, StockItemHoldings) and commit it.
-2. Compare its `copyjob-content.json` with the CDC ones. Expect `jobMode`/`readMethod`
-   to differ and the incremental column to appear.
-3. Add the combination to `_JOB_SETTINGS` in `copy_jobs.py` (plus any new
-   fields), and add a test asserting the render matches the export.
+Any other combination (e.g. watermark + SCD2) is reported as `skipped`. To add
+one, build it once by hand in DEV, commit it, add it to `_JOB_SETTINGS` in
+`copy_jobs.py`, and add it to the export-match test in `tests/test_copy_jobs.py`.
 
 ## Unsupported column types
 

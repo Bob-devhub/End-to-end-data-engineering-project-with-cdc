@@ -22,9 +22,10 @@
    columns:
      - { source: SupplierID, target: supplier_id, type: int, nullable: false }
      - { source: SupplierName, target: supplier_name, type: string }
-     - { source: Valid_From, target: valid_from, type: timestamp }
-     - { source: Valid_To, target: valid_to, type: timestamp }
-     - { source: Is_Current, target: is_current, type: boolean }
+     # SCD2 columns added by Copy job (stored as strings; cast here)
+     - { source: copyjob_valid_from, target: valid_from, type: timestamp }
+     - { source: copyjob_valid_to, target: valid_to, type: timestamp }
+     - { source: copyjob_is_current, target: is_current, type: boolean }
    dq_rules:
      - { rule_type: not_null, column: supplier_id, action: fail }
    ```

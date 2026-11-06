@@ -8,13 +8,20 @@
 # %% [parameters]
 silver = "lh_silver.dbo"   # schema-enabled lakehouse: lakehouse.schema
 
-# %% dim_customer (SCD2 from Copy job -> current + history)
+# SCD2 versions come from Copy job, but its valid_from/valid_to are LOAD times.
+# Effective ranges use the source's business change time (temporal ValidFrom ->
+# source_valid_from): each version is valid until the next version's change time.
+
+# %% dim_customer (SCD2)
 spark.sql(f"""
 CREATE OR REPLACE TABLE dim_customer AS
 SELECT
     xxhash64(customer_id, valid_from) AS customer_key,
     customer_id, customer_name, customer_category_id, delivery_city_id, credit_limit,
-    valid_from, coalesce(valid_to, timestamp'9999-12-31') AS valid_to, is_current
+    source_valid_from AS effective_from,
+    coalesce(lead(source_valid_from) OVER (PARTITION BY customer_id ORDER BY valid_from),
+             timestamp'9999-12-31') AS effective_to,
+    is_current
 FROM {silver}.customers
 """)
 
@@ -24,7 +31,10 @@ CREATE OR REPLACE TABLE dim_stock_item AS
 SELECT
     xxhash64(stock_item_id, valid_from) AS stock_item_key,
     stock_item_id, stock_item_name, brand, unit_price, recommended_retail_price,
-    valid_from, coalesce(valid_to, timestamp'9999-12-31') AS valid_to, is_current
+    source_valid_from AS effective_from,
+    coalesce(lead(source_valid_from) OVER (PARTITION BY stock_item_id ORDER BY valid_from),
+             timestamp'9999-12-31') AS effective_to,
+    is_current
 FROM {silver}.stock_items
 """)
 
@@ -47,10 +57,10 @@ FROM {silver}.orders o
 JOIN {silver}.order_lines ol ON ol.order_id = o.order_id
 LEFT JOIN dim_customer dc
        ON dc.customer_id = o.customer_id
-      AND o.order_date >= CAST(dc.valid_from AS DATE) AND o.order_date < CAST(dc.valid_to AS DATE)
+      AND o.order_date >= CAST(dc.effective_from AS DATE) AND o.order_date < CAST(dc.effective_to AS DATE)
 LEFT JOIN dim_stock_item ds
        ON ds.stock_item_id = ol.stock_item_id
-      AND o.order_date >= CAST(ds.valid_from AS DATE) AND o.order_date < CAST(ds.valid_to AS DATE)
+      AND o.order_date >= CAST(ds.effective_from AS DATE) AND o.order_date < CAST(ds.effective_to AS DATE)
 """)
 
 # %% fact_pos_daily (in-store sales from the real-time path, via OneLake availability)

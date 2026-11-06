@@ -4,7 +4,7 @@ Output is fabric/<cj_name>.CopyJob/{.platform,copyjob-content.json}, the same
 format Fabric Git integration writes, so fabric-cicd deploys them like any item.
 
 The definition shape was captured from a Copy job built in the UI and synced to
-Git (cj_wwi_cdc_scd2, cj_wwi_cdc_merge). Only (read_method, write_method) combinations with a
+Git (cj_wwi_cdc_scd2, cj_wwi_cdc_merge, cj_wwi_watermark). Only (read_method, write_method) combinations with a
 captured example are rendered; others raise UnsupportedCopyJob until one is
 captured (see docs/copy-job-template.md).
 """
@@ -23,10 +23,18 @@ SAME_WORKSPACE = "00000000-0000-0000-0000-000000000000"
 _ID_NAMESPACE = uuid.UUID("2f3e7a0c-5d1b-4c7e-9a64-0b6f1f6f2a11")
 
 # (read_method, write_method) -> job/activity settings, as captured from Fabric
-# (cj_wwi_cdc_scd2, cj_wwi_cdc_merge). The UI's "Merge" is stored as "Upsert".
+# (cj_wwi_cdc_scd2, cj_wwi_cdc_merge, cj_wwi_watermark). The UI's "Merge" is
+# stored as "Upsert". Watermark jobs use the same jobMode/readMethod as CDC and
+# differ only by the incremental column in changeDataSettings.
 _JOB_SETTINGS = {
     ("cdc", "scd2"): {"jobMode": "CDC", "readMethod": "SnapshotPlusIncremental", "writeBehavior": "SCD2"},
     ("cdc", "scd1_merge"): {"jobMode": "CDC", "readMethod": "SnapshotPlusIncremental", "writeBehavior": "Upsert"},
+    ("watermark", "scd1_merge"): {
+        "jobMode": "CDC",
+        "readMethod": "SnapshotPlusIncremental",
+        "writeBehavior": "Upsert",
+        "watermark": True,
+    },
 }
 
 # SQL Server type -> (Copy interim type, Delta physicalType).
@@ -130,13 +138,31 @@ def _translator(e: Entity, columns: list[dict] | None) -> dict:
     return {"type": "TabularTranslator", "mappings": [_column_mapping(c) for c in kept]}
 
 
+def _change_data_settings(e: Entity, settings: dict, columns: list[dict] | None) -> dict:
+    cds: dict = {"readMethod": settings["readMethod"]}
+    if not settings.get("watermark"):
+        return cds
+    col = next((c for c in columns or [] if c["name"].lower() == (e.load.watermark_column or "").lower()), None)
+    if col is None:
+        raise CopyJobRenderError(
+            f"{e.entity_id}: watermark column '{e.load.watermark_column}' not in source schema snapshot - "
+            "run scripts/snapshot_source_schema.py"
+        )
+    sql_type = col["data_type"].lower()
+    if sql_type not in _SQL_TYPES:
+        raise CopyJobRenderError(f"{e.entity_id}: unsupported watermark column type {sql_type}")
+    cds["columns"] = [{"name": col["name"], "type": _SQL_TYPES[sql_type][0], "physicalType": sql_type}]
+    cds["nullWatermarkBehavior"] = "Skip"
+    return cds
+
+
 def _activity(e: Entity, settings: dict, columns: list[dict] | None, activity_id: str) -> dict:
     return {
         "id": activity_id,
         "properties": {
             "source": {
                 "datasetSettings": {"schema": e.source.schema_name, "table": e.source.table},
-                "changeDataSettings": {"readMethod": settings["readMethod"]},
+                "changeDataSettings": _change_data_settings(e, settings, columns),
                 "partitionSettings": {"partitionOption": "None"},
             },
             "destination": {

@@ -86,8 +86,8 @@ python simulator/producer.py --dry-run --count 5
       `source/azure_sql/001_enable_cdc.sql`. Create the Fabric workspace, `sqldb_control` (run the DDL),
       and `lh_bronze`/`lh_silver`/`lh_gold`. Connect Git to `/fabric`.
 - [ ] **2. Warm path.** ~~Build `cj_wwi_cdc_scd2` by hand~~ (done, now rendered from metadata). Run
-      `002_simulate_changes.sql` and check the SCD2 rows in Bronze. ~~Build `cj_wwi_cdc_merge`~~ (done). Build `cj_wwi_watermark`
-      once by hand to capture its template ([docs/copy-job-template.md](docs/copy-job-template.md)).
+      `002_simulate_changes.sql` and check the SCD2 rows in Bronze. All three Copy jobs are
+      now rendered from metadata ([docs/copy-job-template.md](docs/copy-job-template.md)).
 - [ ] **3. Metadata sync.** `scripts/sync_metadata.py`, then `pl_master` driven by `ctl.vw_*` views and logging procs.
 - [ ] **4. Silver and DQ.** Create the `env_cdc_framework` Environment with the CI wheel, then `nb_bronze_to_silver`.
 - [ ] **5. Cold path.** ADLS shortcut, `nb_ingest_files`, storage event trigger.

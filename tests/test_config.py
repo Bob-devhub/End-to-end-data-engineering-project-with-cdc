@@ -32,7 +32,8 @@ def _raw(md: Metadata) -> dict:
 def test_mixing_cdc_and_watermark_in_one_copy_job_is_rejected(md):
     raw = _raw(md)
     wm = next(e for e in raw["entities"] if e["load"]["read_method"] == "watermark")
-    cdc = next(e for e in raw["entities"] if e["load"]["read_method"] == "cdc")
+    cdc = next(e for e in raw["entities"]
+               if e["load"]["read_method"] == "cdc" and e["load"]["write_method"] == "scd1_merge")
     wm["load"]["copy_job_group"] = cdc["load"]["copy_job_group"]
     wm["load"]["write_method"] = cdc["load"]["write_method"]
     with pytest.raises(ValidationError, match="mixes read_method"):
@@ -77,4 +78,13 @@ def test_dq_rule_on_unmapped_column_is_rejected(md):
     raw = _raw(md)
     raw["entities"][0]["dq_rules"].append({"rule_type": "not_null", "column": "does_not_exist"})
     with pytest.raises(ValidationError, match="unmapped columns"):
+        Metadata.model_validate(raw)
+
+
+def test_scd2_entity_must_map_copy_job_history_columns(md):
+    raw = _raw(md)
+    cust = next(e for e in raw["entities"] if e["load"]["write_method"] == "scd2")
+    cust["columns"] = [c for c in cust["columns"] if c["source"] != "copyjob_is_current"]
+    cust["dq_rules"] = [r for r in cust["dq_rules"] if r["column"] != "is_current"]
+    with pytest.raises(ValidationError, match="copyjob_is_current"):
         Metadata.model_validate(raw)

@@ -28,9 +28,10 @@ columns:
   - { source: Brand, target: brand, type: string }
   - { source: UnitPrice, target: unit_price, type: "decimal(18,2)" }
   - { source: RecommendedRetailPrice, target: recommended_retail_price, type: "decimal(18,2)" }
-  - { source: Valid_From, target: valid_from, type: timestamp }
-  - { source: Valid_To, target: valid_to, type: timestamp }
-  - { source: Is_Current, target: is_current, type: boolean }
+  - { source: ValidFrom, target: source_valid_from, type: timestamp }   # business change time (temporal table)
+  - { source: copyjob_valid_from, target: valid_from, type: timestamp }  # Copy job SCD2 columns are strings
+  - { source: copyjob_valid_to, target: valid_to, type: timestamp }
+  - { source: copyjob_is_current, target: is_current, type: boolean }
 
 dq_rules:
   - { rule_type: not_null, column: stock_item_id, action: fail }

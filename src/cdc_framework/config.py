@@ -19,6 +19,8 @@ IngestionEngine = Literal["copy_job", "pipeline_copy", "notebook"]
 ReadMethod = Literal["cdc", "watermark", "full", "new_files"]
 WriteMethod = Literal["append", "overwrite", "scd1_merge", "scd2"]
 DqAction = Literal["warn", "quarantine", "fail"]
+# Columns Copy job adds to Bronze for write_method=scd2 (strings: ISO timestamps, 'true'/'false').
+SCD2_COLUMNS = ("copyjob_valid_from", "copyjob_valid_to", "copyjob_is_current")
 KqlType = Literal["string", "int", "long", "real", "decimal", "datetime", "bool", "dynamic", "guid"]
 
 
@@ -148,6 +150,11 @@ class Entity(_Model):
 
     @model_validator(mode="after")
     def _check_dq_columns(self) -> Entity:
+        if self.columns and self.load.write_method == "scd2":
+            sources = {c.source for c in self.columns}
+            missing = [c for c in SCD2_COLUMNS if c not in sources]
+            if missing:
+                raise ValueError(f"{self.entity_id}: scd2 entities must map Copy job's history columns {missing}")
         if self.columns:
             targets = {c.target_name for c in self.columns}
             missing = [r.column for r in self.dq_rules if r.column not in targets]
