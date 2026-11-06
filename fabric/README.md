@@ -16,7 +16,7 @@ from the Source control pane.
 | `lh_bronze` | Lakehouse (schemas enabled) | Copy job targets as `<SourceSchema>.<Table>`, file ingests in `partner.*`. Shortcut `Files/landing` → ADLS `landing` container |
 | `lh_silver` | Lakehouse | Cleansed, typed, DQ-checked tables |
 | `lh_gold` | Lakehouse | Star schema. Shortcut `Tables/rt_pos_transactions` → Eventhouse table |
-| `env_cdc_framework` | Environment | Custom library: the `cdc_framework` wheel from CI |
+| `env_cdc_framework` | Environment | Runtime 2.0 (Spark 4). Custom library: the `cdc_framework` wheel from CI (`pydantic` and `pyyaml` are built into the runtime) |
 | `cj_wwi_cdc_scd2` | Copy job | Customers, StockItems: CDC read, SCD Type 2 write. **Rendered from metadata** by `scripts/generate_copy_jobs.py` |
 | `cj_wwi_cdc_merge` | Copy job | Orders, OrderLines: CDC read, Merge write. **Rendered from metadata** |
 | `cj_wwi_watermark` | Copy job | StockItemHoldings: watermark on `LastEditedWhen`, Merge write. **Rendered from metadata** |

@@ -4,7 +4,7 @@
 # already applied in Bronze) and file-ingested tables alike.
 #
 # Default lakehouse: lh_silver. lh_bronze is attached as a second lakehouse.
-# Environment: env_cdc_framework (cdc_framework wheel installed).
+# Environment: env_cdc_framework (Runtime 2.0 / Spark 4, cdc_framework wheel installed).
 
 # %% [parameters]
 entity_config_json = "{}"
@@ -27,8 +27,10 @@ print(f"[{entity.entity_id}] {rows_read} bronze rows")
 # %% rename + cast
 has_ingested_at = "_ingested_at" in bronze.columns
 if entity.columns:
+    # try_cast: Spark 4 (Runtime 2.0) runs in ANSI mode, where a bad value makes cast() fail the
+    # whole job. try_cast yields NULL instead, so the DQ rules below can quarantine the row.
     projection = [
-        (F.col(f"`{c.source}`").cast(c.type) if c.type else F.col(f"`{c.source}`")).alias(c.target_name)
+        (F.expr(f"try_cast(`{c.source}` AS {c.type})") if c.type else F.col(f"`{c.source}`")).alias(c.target_name)
         for c in entity.columns
     ]
     if has_ingested_at:

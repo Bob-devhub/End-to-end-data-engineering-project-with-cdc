@@ -3,7 +3,7 @@
 #
 # Default lakehouse: lh_bronze. ADLS landing container is attached as a OneLake
 # shortcut at Files/landing (-> abfss://landing@<account>.dfs.core.windows.net).
-# Environment: env_cdc_framework (cdc_framework wheel installed).
+# Environment: env_cdc_framework (Runtime 2.0 / Spark 4, cdc_framework wheel installed).
 
 # %% [parameters]
 entity_config_json = "{}"   # from pipeline: ctl.vw_active_entities.config_json
@@ -33,7 +33,7 @@ for k, v in entity.source.options.items():
 
 df = (
     reader.load(source_path)
-    .withColumn("_source_file", F.input_file_name())
+    .withColumn("_source_file", F.col("_metadata.file_path"))  # input_file_name() is deprecated in Spark 4
     .withColumn("_ingested_at", F.current_timestamp())
     .withColumn("_pipeline_run_id", F.lit(pipeline_run_id))
 )
