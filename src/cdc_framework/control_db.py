@@ -38,6 +38,7 @@ def connect(server: str, database: str):
     conn_str = (
         "Driver={ODBC Driver 18 for SQL Server};"
         f"Server=tcp:{server},1433;Database={database};Encrypt=yes;TrustServerCertificate=no;"
+        "Connection Timeout=120;"  # serverless / Fabric SQL databases can take a while to resume
     )
     return pyodbc.connect(conn_str, attrs_before={SQL_COPT_SS_ACCESS_TOKEN: token_struct})
 
