@@ -34,23 +34,31 @@ from the Source control pane.
 ## pl_master design
 
 ```
-Lookup  "SELECT * FROM ctl.vw_active_copy_job_groups ORDER BY priority"
-  └─ ForEach (sequential=false, batch 3)
-       ├─ Stored proc  ctl.usp_log_run_start (stage='copy_job', entity=@item().copy_job_group)
-       ├─ Copy job activity  -> @item().copy_job_name
-       └─ Stored proc  ctl.usp_log_run_end (succeeded | failed)
+[built] lkp_copy_jobs   "SELECT copy_job_group, copy_job_name, copy_job_id FROM ctl.vw_active_copy_job_groups ORDER BY priority"
+  └─ fe_copy_jobs (parallel, batch 3)
+       ├─ lkp_log_start     EXEC ctl.usp_log_run_start (stage='copy_job')  -> run_log_id
+       ├─ run_copy_job      Copy job activity, copyJobId=@item().copy_job_id
+       ├─ ✓ sp_log_ok       ctl.usp_log_run_end (succeeded)
+       └─ ✗ sp_log_fail     ctl.usp_log_run_end (failed, @activity('run_copy_job').error.message)
 
-Lookup  "SELECT * FROM ctl.vw_active_entities WHERE ingestion_engine='notebook' ORDER BY priority"
+[todo]  Lookup "... vw_active_entities WHERE ingestion_engine='notebook'"
   └─ ForEach -> Notebook nb_ingest_files (entity_config_json=@item().config_json)
 
-Lookup  "SELECT * FROM ctl.vw_active_entities ORDER BY priority"
-  └─ ForEach
-       ├─ Notebook nb_bronze_to_silver (entity_config_json=@item().config_json)
-       ├─ Stored proc ctl.usp_log_run_end  (rows from exitValue)
-       └─ Stored proc ctl.usp_log_dq_results (@json(activity().output.result.exitValue).dq_results)
+[built] lkp_entities    "SELECT entity_id, config_json FROM ctl.vw_active_entities WHERE ingestion_engine='copy_job' ORDER BY priority"
+  └─ fe_silver (parallel, batch 2)
+       ├─ lkp_log_start_silver  EXEC ctl.usp_log_run_start (stage='silver')
+       ├─ nb_silver             nb_bronze_to_silver (entity_config_json, pipeline_run_id)
+       ├─ ✓ sp_log_ok_silver    ctl.usp_log_run_end (rows from @json(exitValue))
+       ├─ ✓ sp_log_dq           ctl.usp_log_dq_results (@string(json(exitValue).dq_results))
+       └─ ✗ sp_log_fail_silver  ctl.usp_log_run_end (failed, @activity('nb_silver').error.message)
 
-Notebook nb_build_gold
+[todo]  Notebook nb_build_gold
 ```
+
+Pipeline gotchas we hit:
+- Stored procedure Int64 params can't be blank: give a value or tick **Treat as null**.
+- Type expressions through **Add dynamic content**; a value saved without the leading `@` is passed as literal text.
+- The Notebook activity's connection uses a service principal, which needs Contributor on the workspace.
 
 A Copy job's run is driven by the pipeline, so leave the Copy jobs themselves
 unscheduled (or schedule them independently for lower latency on the warm path).

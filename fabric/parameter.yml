@@ -45,6 +45,14 @@ find_replace:
       PROD: "<prod-copyjob-activity-connection-id>"
     item_type: "DataPipeline"
 
+  # Connection used by pl_master's Notebook activity (nb_silver). DEV: "Notebook bob", service
+  # principal auth - that principal needs Contributor (or higher) on the target workspace.
+  - find_value: "f5e6308e-2668-442f-8fc9-21823d4843da"
+    replace_value:
+      TEST: "<test-notebook-activity-connection-id>"
+      PROD: "<prod-notebook-activity-connection-id>"
+    item_type: "DataPipeline"
+
   # Eventhouse query URI (add once the Eventhouse exists)
   # - find_value: "https://<dev>.kusto.fabric.microsoft.com"
   #   replace_value:

@@ -88,7 +88,8 @@ python simulator/producer.py --dry-run --count 5
 - [ ] **2. Warm path.** ~~Build `cj_wwi_cdc_scd2` by hand~~ (done, now rendered from metadata). Run
       `002_simulate_changes.sql` and check the SCD2 rows in Bronze. All three Copy jobs are
       now rendered from metadata ([docs/copy-job-template.md](docs/copy-job-template.md)).
-- [ ] **3. Metadata sync.** `scripts/sync_metadata.py`, then `pl_master` driven by `ctl.vw_*` views and logging procs.
+- [x] **3. Metadata sync.** `scripts/sync_metadata.py`, then `pl_master` driven by `ctl.vw_*` views and logging procs.
+      Stage 1 (Copy jobs) and stage 2 (Silver + DQ logging) verified; file ingest and Gold stages come with phases 5 and 7.
 - [x] **4. Silver and DQ.** `env_cdc_framework` (Runtime 2.0 + wheel) and `nb_bronze_to_silver`; verified on Customers (SCD2).
 - [ ] **5. Cold path.** ADLS shortcut, `nb_ingest_files`, storage event trigger.
 - [ ] **6. Hot path.** Eventhouse plus `deploy_kql.py --apply`, Eventstream custom endpoint, simulator,
