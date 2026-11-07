@@ -510,32 +510,16 @@
               "typeProperties": {
                 "storedProcedureName": "[ctl].[usp_log_run_end]",
                 "storedProcedureParameters": {
-                  "details_json": {
-                    "value": "@activity('nb_silver').output.result.exitValue",
-                    "type": "String"
-                  },
                   "error_message": {
-                    "value": null,
+                    "value": "@activity('nb_silver').error.message",
                     "type": "String"
-                  },
-                  "rows_quarantined": {
-                    "value": "@json(activity('nb_silver').output.result.exitValue).rows_quarantined",
-                    "type": "Int64"
-                  },
-                  "rows_read": {
-                    "value": "@json(activity('nb_silver').output.result.exitValue).rows_read",
-                    "type": "Int64"
-                  },
-                  "rows_written": {
-                    "value": "@json(activity('nb_silver').output.result.exitValue).rows_written",
-                    "type": "Int64"
                   },
                   "run_log_id": {
                     "value": "@activity('lkp_log_start_silver').output.firstRow.run_log_id",
                     "type": "Int64"
                   },
                   "status": {
-                    "value": "succeeded",
+                    "value": "failed",
                     "type": "String"
                   }
                 }
