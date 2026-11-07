@@ -181,7 +181,7 @@
                   },
                   "run_log_id": {
                     "value": {
-                      "value": "@activity('lkp_copy_jobs').output.firstRow.run_log_id",
+                      "value": "@activity('lkp_log_start').output.firstRow.run_log_id",
                       "type": "Expression"
                     },
                     "type": "Int64"
@@ -216,7 +216,7 @@
               "name": "sp_log_fail",
               "dependsOn": [
                 {
-                  "activity": "sp_log_ok",
+                  "activity": "run_copy_job",
                   "dependencyConditions": [
                     "Failed"
                   ]

@@ -24,6 +24,27 @@ find_replace:
       PROD: "<prod-lakehouse-connection-id>"
     item_type: "CopyJob"
 
+  # DEV workspace id hard-coded by the Copy job activity in pl_master -> target workspace
+  - find_value: "9d04974e-4eed-49f7-8f94-d136f1e83a45"
+    replace_value:
+      TEST: "$workspace.id"
+      PROD: "$workspace.id"
+    item_type: "DataPipeline"
+
+  # sqldb_control connection used by pl_master Lookups / stored procedures
+  - find_value: "495c388d-3495-4567-bf3b-60d7153cba76"
+    replace_value:
+      TEST: "<test-sqldb_control-connection-id>"
+      PROD: "<prod-sqldb_control-connection-id>"
+    item_type: "DataPipeline"
+
+  # Connection used by pl_master's Copy job activity
+  - find_value: "bf33c8a8-b035-4510-8f47-d1a1e75c2705"
+    replace_value:
+      TEST: "<test-copyjob-activity-connection-id>"
+      PROD: "<prod-copyjob-activity-connection-id>"
+    item_type: "DataPipeline"
+
   # Eventhouse query URI (add once the Eventhouse exists)
   # - find_value: "https://<dev>.kusto.fabric.microsoft.com"
   #   replace_value:

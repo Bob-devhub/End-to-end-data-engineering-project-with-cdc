@@ -56,6 +56,7 @@ jobs:
         env:
           CONTROL_DB_SERVER: ${{ vars.CONTROL_DB_SERVER }}
           CONTROL_DB_NAME: ${{ vars.CONTROL_DB_NAME }}
+          FABRIC_WORKSPACE_ID: ${{ vars.FABRIC_WORKSPACE_ID }}   # resolves Copy job ids for pl_master
         run: python scripts/sync_metadata.py
 
       - name: Deploy KQL objects

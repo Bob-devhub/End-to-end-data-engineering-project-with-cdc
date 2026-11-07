@@ -8,7 +8,7 @@
    project) and commit; fabric-cicd deploys them.
 
    Config tables  (reloaded from Git by scripts/sync_metadata.py):
-       ctl.source_system, ctl.source_entity, ctl.column_mapping, ctl.dq_rule,
+       ctl.copy_job, ctl.source_system, ctl.source_entity, ctl.column_mapping, ctl.dq_rule,
        ctl.stream_entity, ctl.alert_rule
    Operational tables (written by pipelines/notebooks, never reloaded):
        ctl.watermark, ctl.run_log, ctl.dq_result
@@ -110,6 +110,15 @@ CREATE TABLE ctl.alert_rule (
 );
 GO
 
+IF OBJECT_ID('ctl.copy_job') IS NULL
+CREATE TABLE ctl.copy_job (
+    copy_job_name   VARCHAR(128) NOT NULL PRIMARY KEY,   -- cj_<copy_job_group>
+    copy_job_group  VARCHAR(100) NOT NULL,
+    item_id         UNIQUEIDENTIFIER NULL,               -- Fabric item id in THIS workspace (set by sync_metadata.py)
+    updated_at      DATETIME2(3) NOT NULL DEFAULT SYSUTCDATETIME()
+);
+GO
+
 -- ---------------------------------------------------------------- operational tables
 IF OBJECT_ID('ctl.watermark') IS NULL
 CREATE TABLE ctl.watermark (
@@ -161,13 +170,15 @@ WHERE e.is_active = 1;
 GO
 
 CREATE OR ALTER VIEW ctl.vw_active_copy_job_groups AS
-SELECT copy_job_group,
-       'cj_' + copy_job_group AS copy_job_name,
-       MIN(priority)          AS priority,
-       COUNT(*)               AS table_count
-FROM ctl.source_entity
-WHERE is_active = 1 AND ingestion_engine = 'copy_job'
-GROUP BY copy_job_group;
+SELECT e.copy_job_group,
+       'cj_' + e.copy_job_group AS copy_job_name,
+       LOWER(CONVERT(VARCHAR(36), cj.item_id)) AS copy_job_id,  -- Fabric uses lowercase ids
+       MIN(e.priority)          AS priority,
+       COUNT(*)                 AS table_count
+FROM ctl.source_entity e
+LEFT JOIN ctl.copy_job cj ON cj.copy_job_group = e.copy_job_group
+WHERE e.is_active = 1 AND e.ingestion_engine = 'copy_job'
+GROUP BY e.copy_job_group, cj.item_id;
 GO
 
 -- ---------------------------------------------------------------- logging procedures
