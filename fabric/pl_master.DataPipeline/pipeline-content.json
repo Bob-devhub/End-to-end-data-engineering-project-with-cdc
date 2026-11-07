@@ -1,0 +1,276 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "Lookup",
+        "typeProperties": {
+          "source": {
+            "type": "FabricSqlDatabaseSource",
+            "sqlReaderQuery": "SELECT copy_job_group, copy_job_name, copy_job_id FROM ctl.vw_active_copy_job_groups ORDER BY priority",
+            "partitionOption": "None",
+            "queryTimeout": "02:00:00"
+          },
+          "datasetSettings": {
+            "type": "FabricSqlDatabaseTable",
+            "schema": [],
+            "connectionSettings": {
+              "name": "sqldb_control",
+              "properties": {
+                "type": "FabricSqlDatabase",
+                "typeProperties": {
+                  "artifactId": "2928ae9a-6bcc-8d37-4cea-ce4766612733",
+                  "workspaceId": "00000000-0000-0000-0000-000000000000"
+                },
+                "externalReferences": {
+                  "connection": "495c388d-3495-4567-bf3b-60d7153cba76"
+                },
+                "annotations": []
+              }
+            },
+            "annotations": []
+          },
+          "firstRowOnly": false
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "lkp_copy_jobs",
+        "dependsOn": []
+      },
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "batchCount": 3,
+          "items": {
+            "value": "@activity('lkp_copy_jobs').output.value",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "Lookup",
+              "typeProperties": {
+                "source": {
+                  "type": "FabricSqlDatabaseSource",
+                  "sqlReaderQuery": "@concat('EXEC ctl.usp_log_run_start @pipeline_run_id = ''', pipeline().RunId, ''', @entity_id = ''', item().copy_job_group, ''', @stage = ''copy_job''')",
+                  "partitionOption": "None",
+                  "queryTimeout": "02:00:00"
+                },
+                "datasetSettings": {
+                  "type": "FabricSqlDatabaseTable",
+                  "schema": [],
+                  "connectionSettings": {
+                    "name": "sqldb_control",
+                    "properties": {
+                      "type": "FabricSqlDatabase",
+                      "typeProperties": {
+                        "artifactId": "2928ae9a-6bcc-8d37-4cea-ce4766612733",
+                        "workspaceId": "00000000-0000-0000-0000-000000000000"
+                      },
+                      "externalReferences": {
+                        "connection": "495c388d-3495-4567-bf3b-60d7153cba76"
+                      },
+                      "annotations": []
+                    }
+                  },
+                  "annotations": []
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "lkp_log_start",
+              "dependsOn": []
+            },
+            {
+              "type": "InvokeCopyJob",
+              "typeProperties": {
+                "copyJobId": {
+                  "value": "@item().copy_job_id",
+                  "type": "Expression"
+                },
+                "workspaceId": "9d04974e-4eed-49f7-8f94-d136f1e83a45"
+              },
+              "externalReferences": {
+                "connection": "bf33c8a8-b035-4510-8f47-d1a1e75c2705"
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "run_copy_job",
+              "dependsOn": [
+                {
+                  "activity": "lkp_log_start",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "SqlServerStoredProcedure",
+              "typeProperties": {
+                "storedProcedureName": "[ctl].[usp_log_run_end]",
+                "storedProcedureParameters": {
+                  "details_json": {
+                    "value": "",
+                    "type": "String"
+                  },
+                  "error_message": {
+                    "value": "",
+                    "type": "String"
+                  },
+                  "rows_quarantined": {
+                    "value": "",
+                    "type": "Int64"
+                  },
+                  "rows_read": {
+                    "value": "",
+                    "type": "Int64"
+                  },
+                  "rows_written": {
+                    "value": "",
+                    "type": "Int64"
+                  },
+                  "run_log_id": {
+                    "value": {
+                      "value": "@activity('lkp_log_start').output.firstRow.run_log_id",
+                      "type": "Expression"
+                    },
+                    "type": "Int64"
+                  },
+                  "status": {
+                    "value": "succeeded",
+                    "type": "String"
+                  }
+                }
+              },
+              "connectionSettings": {
+                "name": "sqldb_control",
+                "properties": {
+                  "type": "FabricSqlDatabase",
+                  "typeProperties": {
+                    "artifactId": "2928ae9a-6bcc-8d37-4cea-ce4766612733",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000"
+                  },
+                  "externalReferences": {
+                    "connection": "495c388d-3495-4567-bf3b-60d7153cba76"
+                  },
+                  "annotations": []
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "sp_log_ok",
+              "dependsOn": [
+                {
+                  "activity": "run_copy_job",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "SqlServerStoredProcedure",
+              "typeProperties": {
+                "storedProcedureName": "[ctl].[usp_log_run_end]",
+                "storedProcedureParameters": {
+                  "details_json": {
+                    "value": "",
+                    "type": "String"
+                  },
+                  "error_message": {
+                    "value": {
+                      "value": "@activity('run_copy_job').error.message",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "rows_quarantined": {
+                    "value": "",
+                    "type": "Int64"
+                  },
+                  "rows_read": {
+                    "value": "",
+                    "type": "Int64"
+                  },
+                  "rows_written": {
+                    "value": "",
+                    "type": "Int64"
+                  },
+                  "run_log_id": {
+                    "value": {
+                      "value": "@activity('lkp_log_start').output.firstRow.run_log_id",
+                      "type": "Expression"
+                    },
+                    "type": "Int64"
+                  },
+                  "status": {
+                    "value": "failed",
+                    "type": "String"
+                  }
+                }
+              },
+              "connectionSettings": {
+                "name": "sqldb_control",
+                "properties": {
+                  "type": "FabricSqlDatabase",
+                  "typeProperties": {
+                    "artifactId": "2928ae9a-6bcc-8d37-4cea-ce4766612733",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000"
+                  },
+                  "externalReferences": {
+                    "connection": "495c388d-3495-4567-bf3b-60d7153cba76"
+                  },
+                  "annotations": []
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "sp_log_fail",
+              "dependsOn": [
+                {
+                  "activity": "sp_log_ok",
+                  "dependencyConditions": [
+                    "Failed"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "name": "fe_copy_jobs",
+        "dependsOn": [
+          {
+            "activity": "lkp_copy_jobs",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
