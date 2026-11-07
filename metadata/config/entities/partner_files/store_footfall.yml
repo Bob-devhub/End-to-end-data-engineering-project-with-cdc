@@ -20,6 +20,7 @@ load:
   ingestion_engine: notebook
   read_method: new_files
   write_method: append
+  primary_keys: [store_id, date]
 
 columns:
   - { source: store_id, target: store_id, type: int, nullable: false }

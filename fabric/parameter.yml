@@ -53,6 +53,18 @@ find_replace:
       PROD: "<prod-notebook-activity-connection-id>"
     item_type: "DataPipeline"
 
+  # lh_bronze shortcut Files/landing -> ADLS landing container: connection (conn-adls-landing) and account
+  - find_value: "01ed05b8-a229-48aa-8543-c156151f43b7"
+    replace_value:
+      TEST: "<test-conn-adls-landing-id>"
+      PROD: "<prod-conn-adls-landing-id>"
+    item_type: "Lakehouse"
+  - find_value: "https://dataengcdc.dfs.core.windows.net"
+    replace_value:
+      TEST: "https://<test-account>.dfs.core.windows.net"
+      PROD: "https://<prod-account>.dfs.core.windows.net"
+    item_type: "Lakehouse"
+
   # Eventhouse query URI (add once the Eventhouse exists)
   # - find_value: "https://<dev>.kusto.fabric.microsoft.com"
   #   replace_value:

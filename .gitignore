@@ -23,3 +23,6 @@ local.settings.json
 Thumbs.db
 .vscode/
 .idea/
+
+# Sample partner files (scripts/generate_partner_files.py)
+sample_data/

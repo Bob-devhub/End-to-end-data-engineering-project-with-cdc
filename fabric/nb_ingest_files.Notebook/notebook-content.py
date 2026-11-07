@@ -40,7 +40,7 @@
 # META   "language_group": "synapse_pyspark"
 # META }
 
-# CELL ********************
+# PARAMETERS CELL ********************
 
 # %% [parameters]
 entity_config_json = "{}"   # from pipeline: ctl.vw_active_entities.config_json

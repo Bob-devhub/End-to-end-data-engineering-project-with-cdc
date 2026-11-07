@@ -20,7 +20,7 @@ from the Source control pane.
 | `cj_wwi_cdc_scd2` | Copy job | Customers, StockItems: CDC read, SCD Type 2 write. **Rendered from metadata** by `scripts/generate_copy_jobs.py` |
 | `cj_wwi_cdc_merge` | Copy job | Orders, OrderLines: CDC read, Merge write. **Rendered from metadata** |
 | `cj_wwi_watermark` | Copy job | StockItemHoldings: watermark on `LastEditedWhen`, Merge write. **Rendered from metadata** |
-| `nb_ingest_files` | Notebook | Paste from `notebooks/nb_ingest_files.py`, then delete that file once synced here |
+| `nb_ingest_files` | Notebook | Created; source of truth is `fabric/nb_ingest_files.Notebook/`. Reads `Files/landing/partners/` via the `landing` shortcut (→ `dataengcdc/landing`) |
 | `nb_bronze_to_silver` | Notebook | Created; source of truth is `fabric/nb_bronze_to_silver.Notebook/` (edit in Fabric, commit) |
 | `nb_build_gold` | Notebook | Paste from `notebooks/nb_build_gold.py`, then delete that file once synced here |
 | `pl_master` | Data pipeline | Orchestration (below) |
