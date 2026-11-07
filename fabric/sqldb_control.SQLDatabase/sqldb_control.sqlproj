@@ -29,14 +29,17 @@
     <ServiceBrokerOption>EnableBroker</ServiceBrokerOption>
     <TargetRecoveryTimePeriod>60</TargetRecoveryTimePeriod>
   </PropertyGroup>
+  <Target Name="BeforeBuild">
+    <Delete Files="$(BaseIntermediateOutputPath)\project.assets.json" />
+  </Target>
   <ItemGroup>
+    <PackageReference Include="Microsoft.SqlServer.Dacpacs.DbFabric" Version="170.*">
+      <DatabaseVariableLiteralValue>master</DatabaseVariableLiteralValue>
+    </PackageReference>
     <PackageReference Include="Microsoft.SqlServer.Dacpacs.DbFabric">
       <SuppressMissingDependenciesErrors>False</SuppressMissingDependenciesErrors>
       <DatabaseVariableLiteralValue>master</DatabaseVariableLiteralValue>
       <Version>170.0.0</Version>
     </PackageReference>
   </ItemGroup>
-  <Target Name="BeforeBuild">
-    <Delete Files="$(BaseIntermediateOutputPath)\project.assets.json" />
-  </Target>
 </Project>

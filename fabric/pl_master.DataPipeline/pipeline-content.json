@@ -123,26 +123,6 @@
               "typeProperties": {
                 "storedProcedureName": "[ctl].[usp_log_run_end]",
                 "storedProcedureParameters": {
-                  "details_json": {
-                    "value": "",
-                    "type": "String"
-                  },
-                  "error_message": {
-                    "value": "",
-                    "type": "String"
-                  },
-                  "rows_quarantined": {
-                    "value": "",
-                    "type": "Int64"
-                  },
-                  "rows_read": {
-                    "value": "",
-                    "type": "Int64"
-                  },
-                  "rows_written": {
-                    "value": "",
-                    "type": "Int64"
-                  },
                   "run_log_id": {
                     "value": {
                       "value": "@activity('lkp_log_start').output.firstRow.run_log_id",
@@ -192,28 +172,12 @@
               "typeProperties": {
                 "storedProcedureName": "[ctl].[usp_log_run_end]",
                 "storedProcedureParameters": {
-                  "details_json": {
-                    "value": "",
-                    "type": "String"
-                  },
                   "error_message": {
                     "value": {
                       "value": "@activity('run_copy_job').error.message",
                       "type": "Expression"
                     },
                     "type": "String"
-                  },
-                  "rows_quarantined": {
-                    "value": "",
-                    "type": "Int64"
-                  },
-                  "rows_read": {
-                    "value": "",
-                    "type": "Int64"
-                  },
-                  "rows_written": {
-                    "value": "",
-                    "type": "Int64"
                   },
                   "run_log_id": {
                     "value": {
