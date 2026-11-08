@@ -1,0 +1,602 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "Lookup",
+        "typeProperties": {
+          "source": {
+            "type": "FabricSqlDatabaseSource",
+            "sqlReaderQuery": {
+              "value": "@concat('SELECT entity_id, config_json FROM ctl.vw_active_entities WHERE ingestion_engine = ''notebook'' AND JSON_VALUE(config_json, ''$.source.file_pattern'') LIKE ''', last(split(coalesce(pipeline()?.TriggerEvent?.FolderPath, pipeline().parameters.folder_path), '/')), '/%''')",
+              "type": "Expression"
+            },
+            "partitionOption": "None",
+            "queryTimeout": "02:00:00"
+          },
+          "datasetSettings": {
+            "type": "FabricSqlDatabaseTable",
+            "schema": [],
+            "connectionSettings": {
+              "name": "sqldb_control",
+              "properties": {
+                "type": "FabricSqlDatabase",
+                "typeProperties": {
+                  "artifactId": "2928ae9a-6bcc-8d37-4cea-ce4766612733",
+                  "workspaceId": "00000000-0000-0000-0000-000000000000"
+                },
+                "externalReferences": {
+                  "connection": "495c388d-3495-4567-bf3b-60d7153cba76"
+                },
+                "annotations": []
+              }
+            },
+            "annotations": []
+          },
+          "firstRowOnly": false
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "lkp_entity",
+        "dependsOn": []
+      },
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "isSequential": false,
+          "batchCount": 2,
+          "items": {
+            "value": "@activity('lkp_entity').output.value",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "Lookup",
+              "typeProperties": {
+                "source": {
+                  "type": "FabricSqlDatabaseSource",
+                  "sqlReaderQuery": {
+                    "value": "@concat('EXEC ctl.usp_log_run_start @pipeline_run_id = ''', pipeline().RunId, ''', @entity_id = ''', item().entity_id, ''', @stage = ''silver''')",
+                    "type": "Expression"
+                  },
+                  "partitionOption": "None",
+                  "queryTimeout": "02:00:00"
+                },
+                "datasetSettings": {
+                  "type": "FabricSqlDatabaseTable",
+                  "schema": [],
+                  "connectionSettings": {
+                    "name": "sqldb_control",
+                    "properties": {
+                      "type": "FabricSqlDatabase",
+                      "typeProperties": {
+                        "artifactId": "2928ae9a-6bcc-8d37-4cea-ce4766612733",
+                        "workspaceId": "00000000-0000-0000-0000-000000000000"
+                      },
+                      "externalReferences": {
+                        "connection": "495c388d-3495-4567-bf3b-60d7153cba76"
+                      },
+                      "annotations": []
+                    }
+                  },
+                  "annotations": []
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "lkp_log_start_silver",
+              "dependsOn": []
+            },
+            {
+              "type": "TridentNotebook",
+              "typeProperties": {
+                "notebookId": "f85de8cc-0131-a9ef-449a-359f21be9dc2",
+                "workspaceId": "00000000-0000-0000-0000-000000000000",
+                "parameters": {
+                  "entity_config_json": {
+                    "value": {
+                      "value": "@item().config_json",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "pipeline_run_id": {
+                    "value": {
+                      "value": "@pipeline().RunId",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "bronze_lakehouse": {
+                    "value": "lh_bronze",
+                    "type": "string"
+                  }
+                }
+              },
+              "externalReferences": {
+                "connection": "f5e6308e-2668-442f-8fc9-21823d4843da"
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "nb_silver",
+              "dependsOn": [
+                {
+                  "activity": "lkp_log_start_silver",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "SqlServerStoredProcedure",
+              "typeProperties": {
+                "storedProcedureName": "[ctl].[usp_log_run_end]",
+                "storedProcedureParameters": {
+                  "details_json": {
+                    "value": {
+                      "value": "@activity('nb_silver').output.result.exitValue",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "error_message": {
+                    "value": null,
+                    "type": "String"
+                  },
+                  "rows_quarantined": {
+                    "value": {
+                      "value": "@json(activity('nb_silver').output.result.exitValue).rows_quarantined",
+                      "type": "Expression"
+                    },
+                    "type": "Int64"
+                  },
+                  "rows_read": {
+                    "value": {
+                      "value": "@json(activity('nb_silver').output.result.exitValue).rows_read",
+                      "type": "Expression"
+                    },
+                    "type": "Int64"
+                  },
+                  "rows_written": {
+                    "value": {
+                      "value": "@json(activity('nb_silver').output.result.exitValue).rows_written",
+                      "type": "Expression"
+                    },
+                    "type": "Int64"
+                  },
+                  "run_log_id": {
+                    "value": {
+                      "value": "@activity('lkp_log_start_silver').output.firstRow.run_log_id",
+                      "type": "Expression"
+                    },
+                    "type": "Int64"
+                  },
+                  "status": {
+                    "value": "succeeded",
+                    "type": "String"
+                  }
+                }
+              },
+              "connectionSettings": {
+                "name": "sqldb_control",
+                "properties": {
+                  "type": "FabricSqlDatabase",
+                  "typeProperties": {
+                    "artifactId": "2928ae9a-6bcc-8d37-4cea-ce4766612733",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000"
+                  },
+                  "externalReferences": {
+                    "connection": "495c388d-3495-4567-bf3b-60d7153cba76"
+                  },
+                  "annotations": []
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "sp_log_ok_silver",
+              "dependsOn": [
+                {
+                  "activity": "nb_silver",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "SqlServerStoredProcedure",
+              "typeProperties": {
+                "storedProcedureName": "[ctl].[usp_log_dq_results]",
+                "storedProcedureParameters": {
+                  "entity_id": {
+                    "value": {
+                      "value": "@item().entity_id",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "pipeline_run_id": {
+                    "value": {
+                      "value": "@pipeline().RunId",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "results_json": {
+                    "value": {
+                      "value": "@string(json(activity('nb_silver').output.result.exitValue).dq_results)",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  }
+                }
+              },
+              "connectionSettings": {
+                "name": "sqldb_control",
+                "properties": {
+                  "type": "FabricSqlDatabase",
+                  "typeProperties": {
+                    "artifactId": "2928ae9a-6bcc-8d37-4cea-ce4766612733",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000"
+                  },
+                  "externalReferences": {
+                    "connection": "495c388d-3495-4567-bf3b-60d7153cba76"
+                  },
+                  "annotations": []
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "sp_log_dq",
+              "dependsOn": [
+                {
+                  "activity": "nb_silver",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "SqlServerStoredProcedure",
+              "typeProperties": {
+                "storedProcedureName": "[ctl].[usp_log_run_end]",
+                "storedProcedureParameters": {
+                  "error_message": {
+                    "value": {
+                      "value": "@activity('nb_silver').error.message",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "run_log_id": {
+                    "value": {
+                      "value": "@activity('lkp_log_start_silver').output.firstRow.run_log_id",
+                      "type": "Expression"
+                    },
+                    "type": "Int64"
+                  },
+                  "status": {
+                    "value": "failed",
+                    "type": "String"
+                  }
+                }
+              },
+              "connectionSettings": {
+                "name": "sqldb_control",
+                "properties": {
+                  "type": "FabricSqlDatabase",
+                  "typeProperties": {
+                    "artifactId": "2928ae9a-6bcc-8d37-4cea-ce4766612733",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000"
+                  },
+                  "externalReferences": {
+                    "connection": "495c388d-3495-4567-bf3b-60d7153cba76"
+                  },
+                  "annotations": []
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "sp_log_fail_silver",
+              "dependsOn": [
+                {
+                  "activity": "nb_silver",
+                  "dependencyConditions": [
+                    "Failed"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "name": "fe_silver",
+        "dependsOn": [
+          {
+            "activity": "fe_ingest",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "batchCount": 2,
+          "items": {
+            "value": "@activity('lkp_entity').output.value",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "Lookup",
+              "typeProperties": {
+                "source": {
+                  "type": "FabricSqlDatabaseSource",
+                  "sqlReaderQuery": {
+                    "value": "@concat('EXEC ctl.usp_log_run_start @pipeline_run_id = ''', pipeline().RunId, ''', @entity_id = ''', item().entity_id, ''', @stage = ''ingest''')",
+                    "type": "Expression"
+                  },
+                  "partitionOption": "None",
+                  "queryTimeout": "02:00:00"
+                },
+                "datasetSettings": {
+                  "type": "FabricSqlDatabaseTable",
+                  "schema": [],
+                  "connectionSettings": {
+                    "name": "sqldb_control",
+                    "properties": {
+                      "type": "FabricSqlDatabase",
+                      "typeProperties": {
+                        "artifactId": "2928ae9a-6bcc-8d37-4cea-ce4766612733",
+                        "workspaceId": "00000000-0000-0000-0000-000000000000"
+                      },
+                      "externalReferences": {
+                        "connection": "495c388d-3495-4567-bf3b-60d7153cba76"
+                      },
+                      "annotations": []
+                    }
+                  },
+                  "annotations": []
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "lkp_log_start_ingest",
+              "dependsOn": []
+            },
+            {
+              "type": "TridentNotebook",
+              "typeProperties": {
+                "notebookId": "20947f38-03ad-8093-40c7-2c834fc1d88c",
+                "workspaceId": "00000000-0000-0000-0000-000000000000",
+                "parameters": {
+                  "entity_config_json": {
+                    "value": "@item().config_json",
+                    "type": "string"
+                  },
+                  "trigger_file": {
+                    "value": {
+                      "value": "@concat('Files/', coalesce(pipeline()?.TriggerEvent?.FolderPath, pipeline().parameters.folder_path), '/', coalesce(pipeline()?.TriggerEvent?.FileName, pipeline().parameters.file_name))",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "pipeline_run_id": {
+                    "value": "@pipeline().RunId",
+                    "type": "string"
+                  }
+                }
+              },
+              "externalReferences": {
+                "connection": "f5e6308e-2668-442f-8fc9-21823d4843da"
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "nb_ingest",
+              "dependsOn": [
+                {
+                  "activity": "lkp_log_start_ingest",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "SqlServerStoredProcedure",
+              "typeProperties": {
+                "storedProcedureName": "[ctl].[usp_log_run_end]",
+                "storedProcedureParameters": {
+                  "error_message": {
+                    "value": "@activity('nb_ingest').error.message",
+                    "type": "String"
+                  },
+                  "run_log_id": {
+                    "value": {
+                      "value": "@activity('lkp_log_start_ingest').output.firstRow.run_log_id",
+                      "type": "Expression"
+                    },
+                    "type": "Int64"
+                  },
+                  "status": {
+                    "value": "failed",
+                    "type": "String"
+                  }
+                }
+              },
+              "connectionSettings": {
+                "name": "sqldb_control",
+                "properties": {
+                  "type": "FabricSqlDatabase",
+                  "typeProperties": {
+                    "artifactId": "2928ae9a-6bcc-8d37-4cea-ce4766612733",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000"
+                  },
+                  "externalReferences": {
+                    "connection": "495c388d-3495-4567-bf3b-60d7153cba76"
+                  },
+                  "annotations": []
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "sp_log_fail_ingest",
+              "dependsOn": [
+                {
+                  "activity": "nb_ingest",
+                  "dependencyConditions": [
+                    "Failed"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "SqlServerStoredProcedure",
+              "typeProperties": {
+                "storedProcedureName": "[ctl].[usp_log_run_end]",
+                "storedProcedureParameters": {
+                  "details_json": {
+                    "value": {
+                      "value": "@activity('nb_ingest').output.result.exitValue",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "error_message": {
+                    "value": null,
+                    "type": "String"
+                  },
+                  "rows_quarantined": {
+                    "value": null,
+                    "type": "Int64"
+                  },
+                  "rows_read": {
+                    "value": {
+                      "value": "@json(activity('nb_ingest').output.result.exitValue).rows_read",
+                      "type": "Expression"
+                    },
+                    "type": "Int64"
+                  },
+                  "rows_written": {
+                    "value": {
+                      "value": "@json(activity('nb_ingest').output.result.exitValue).rows_written",
+                      "type": "Expression"
+                    },
+                    "type": "Int64"
+                  },
+                  "run_log_id": {
+                    "value": {
+                      "value": "@activity('lkp_log_start_ingest').output.firstRow.run_log_id",
+                      "type": "Expression"
+                    },
+                    "type": "Int64"
+                  },
+                  "status": {
+                    "value": "succeeded",
+                    "type": "String"
+                  }
+                }
+              },
+              "connectionSettings": {
+                "name": "sqldb_control",
+                "properties": {
+                  "type": "FabricSqlDatabase",
+                  "typeProperties": {
+                    "artifactId": "2928ae9a-6bcc-8d37-4cea-ce4766612733",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000"
+                  },
+                  "externalReferences": {
+                    "connection": "495c388d-3495-4567-bf3b-60d7153cba76"
+                  },
+                  "annotations": []
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "sp_log_ok_ingest",
+              "dependsOn": [
+                {
+                  "activity": "nb_ingest",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "name": "fe_ingest",
+        "dependsOn": [
+          {
+            "activity": "lkp_entity",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      }
+    ],
+    "parameters": {
+      "folder_path": {
+        "type": "string",
+        "defaultValue": "landing/partners/promotions"
+      },
+      "file_name": {
+        "type": "string",
+        "defaultValue": "promotions_20261108.csv"
+      }
+    }
+  }
+}

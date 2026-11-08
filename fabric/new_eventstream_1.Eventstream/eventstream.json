@@ -1,0 +1,33 @@
+{
+  "sources": [
+    {
+      "id": "43c157e0-d5b5-4b66-99df-66ec531d1d5d",
+      "name": "EventLinks",
+      "type": "AzureBlobStorageEvents",
+      "properties": {
+        "azureBlobStorageEvents": [
+          {
+            "id": "5f6959ff-aa26-4e1b-a372-766c1f873273",
+            "azureResourceId": "/subscriptions/c3b18da3-2c7b-4829-87ec-0a3b03c7b50b/resourceGroups/bob-rg/providers/Microsoft.Storage/storageAccounts/dataengcdc",
+            "includedEventTypes": [
+              "Microsoft.Storage.BlobCreated"
+            ]
+          }
+        ],
+        "streamEvents": true
+      }
+    }
+  ],
+  "destinations": [],
+  "streams": [
+    {
+      "id": "a3225865-9411-45d1-b1fa-ba6bf2601b12",
+      "name": "new_eventstream_1-stream",
+      "type": "DefaultStream",
+      "properties": {},
+      "inputNodes": []
+    }
+  ],
+  "operators": [],
+  "compatibilityLevel": "1.1"
+}
