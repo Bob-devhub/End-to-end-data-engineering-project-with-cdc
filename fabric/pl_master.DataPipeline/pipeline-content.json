@@ -695,7 +695,10 @@
                 "workspaceId": "00000000-0000-0000-0000-000000000000",
                 "parameters": {
                   "entity_config_json": {
-                    "value": "@item().config_json",
+                    "value": {
+                      "value": "@item().config_json",
+                      "type": "Expression"
+                    },
                     "type": "string"
                   },
                   "trigger_file": {
@@ -703,7 +706,10 @@
                     "type": "string"
                   },
                   "pipeline_run_id": {
-                    "value": "@pipeline().RunId",
+                    "value": {
+                      "value": "@pipeline().RunId",
+                      "type": "Expression"
+                    },
                     "type": "string"
                   }
                 }
@@ -734,7 +740,10 @@
                 "storedProcedureName": "[ctl].[usp_log_run_end]",
                 "storedProcedureParameters": {
                   "error_message": {
-                    "value": "@activity('nb_ingest').error.message",
+                    "value": {
+                      "value": "@activity('nb_ingest').error.message",
+                      "type": "Expression"
+                    },
                     "type": "String"
                   },
                   "run_log_id": {
@@ -867,6 +876,222 @@
             "activity": "lkp_files",
             "dependencyConditions": [
               "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Lookup",
+        "typeProperties": {
+          "source": {
+            "type": "FabricSqlDatabaseSource",
+            "sqlReaderQuery": "@concat('EXEC ctl.usp_log_run_start @pipeline_run_id = ''', pipeline().RunId, ''', @entity_id = ''gold'', @stage = ''gold''')",
+            "partitionOption": "None",
+            "queryTimeout": "02:00:00"
+          },
+          "datasetSettings": {
+            "type": "FabricSqlDatabaseTable",
+            "schema": [],
+            "connectionSettings": {
+              "name": "sqldb_control",
+              "properties": {
+                "type": "FabricSqlDatabase",
+                "typeProperties": {
+                  "artifactId": "2928ae9a-6bcc-8d37-4cea-ce4766612733",
+                  "workspaceId": "00000000-0000-0000-0000-000000000000"
+                },
+                "externalReferences": {
+                  "connection": "495c388d-3495-4567-bf3b-60d7153cba76"
+                },
+                "annotations": []
+              }
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "lkp_log_start_gold",
+        "dependsOn": [
+          {
+            "activity": "fe_silver",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "3274709d-1ea3-b074-4b60-9e03970d8d56",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "externalReferences": {
+          "connection": "f5e6308e-2668-442f-8fc9-21823d4843da"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "nb_gold",
+        "dependsOn": [
+          {
+            "activity": "lkp_log_start_gold",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[ctl].[usp_log_run_end]",
+          "storedProcedureParameters": {
+            "details_json": {
+              "value": "@activity('nb_gold').output.result.exitValue",
+              "type": "String"
+            },
+            "error_message": {
+              "value": null,
+              "type": "String"
+            },
+            "rows_quarantined": {
+              "value": null,
+              "type": "Int64"
+            },
+            "rows_read": {
+              "value": null,
+              "type": "Int64"
+            },
+            "rows_written": {
+              "value": "@json(activity('nb_gold').output.result.exitValue).rows_written",
+              "type": "Int64"
+            },
+            "run_log_id": {
+              "value": {
+                "value": "@activity('lkp_log_start_gold').output.firstRow.run_log_id",
+                "type": "Expression"
+              },
+              "type": "Int64"
+            },
+            "status": {
+              "value": "succeeded",
+              "type": "String"
+            }
+          }
+        },
+        "connectionSettings": {
+          "name": "sqldb_control",
+          "properties": {
+            "type": "FabricSqlDatabase",
+            "typeProperties": {
+              "artifactId": "2928ae9a-6bcc-8d37-4cea-ce4766612733",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "externalReferences": {
+              "connection": "495c388d-3495-4567-bf3b-60d7153cba76"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "sp_log_ok_gold",
+        "dependsOn": [
+          {
+            "activity": "nb_gold",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[ctl].[usp_log_run_end]",
+          "storedProcedureParameters": {
+            "details_json": {
+              "value": null,
+              "type": "String"
+            },
+            "error_message": {
+              "value": "@activity('nb_gold').error.message",
+              "type": "String"
+            },
+            "rows_quarantined": {
+              "value": null,
+              "type": "Int64"
+            },
+            "rows_read": {
+              "value": null,
+              "type": "Int64"
+            },
+            "rows_written": {
+              "value": null,
+              "type": "Int64"
+            },
+            "run_log_id": {
+              "value": "@activity('lkp_log_start_gold').output.firstRow.run_log_id",
+              "type": "Int64"
+            },
+            "status": {
+              "value": "failed",
+              "type": "String"
+            }
+          }
+        },
+        "connectionSettings": {
+          "name": "sqldb_control",
+          "properties": {
+            "type": "FabricSqlDatabase",
+            "typeProperties": {
+              "artifactId": "2928ae9a-6bcc-8d37-4cea-ce4766612733",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "externalReferences": {
+              "connection": "495c388d-3495-4567-bf3b-60d7153cba76"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "sp_log_fail_gold",
+        "dependsOn": [
+          {
+            "activity": "nb_gold",
+            "dependencyConditions": [
+              "Failed"
             ]
           }
         ]
