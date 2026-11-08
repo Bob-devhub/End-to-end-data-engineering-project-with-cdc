@@ -24,12 +24,12 @@ find_replace:
       PROD: "<prod-lakehouse-connection-id>"
     item_type: "CopyJob"
 
-  # DEV workspace id hard-coded by the Copy job activity in pl_master -> target workspace
+  # DEV workspace id hard-coded by pl_master's Copy job activity and act_file_arrival -> target workspace
+  # (no item_type filter: applies to every item that contains it)
   - find_value: "9d04974e-4eed-49f7-8f94-d136f1e83a45"
     replace_value:
       TEST: "$workspace.id"
       PROD: "$workspace.id"
-    item_type: "DataPipeline"
 
   # sqldb_control connection used by pl_master Lookups / stored procedures
   - find_value: "495c388d-3495-4567-bf3b-60d7153cba76"
@@ -64,6 +64,18 @@ find_replace:
       TEST: "https://<test-account>.dfs.core.windows.net"
       PROD: "https://<prod-account>.dfs.core.windows.net"
     item_type: "Lakehouse"
+
+  # File-arrival trigger: es_file_arrival subscribes to the landing storage account's BlobCreated events,
+  # act_file_arrival (Activator) reads that Eventstream by item id and runs pl_file_arrival
+  - find_value: "/subscriptions/c3b18da3-2c7b-4829-87ec-0a3b03c7b50b/resourceGroups/bob-rg/providers/Microsoft.Storage/storageAccounts/dataengcdc"
+    replace_value:
+      TEST: "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<test-account>"
+      PROD: "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<prod-account>"
+  - find_value: "7f31296d-1b4d-410f-b782-4a33b2b4cb9a"   # es_file_arrival item id (DEV)
+    replace_value:
+      TEST: "$items.Eventstream.es_file_arrival.id"
+      PROD: "$items.Eventstream.es_file_arrival.id"
+    item_type: "Reflex"
 
   # Eventhouse query URI (add once the Eventhouse exists)
   # - find_value: "https://<dev>.kusto.fabric.microsoft.com"

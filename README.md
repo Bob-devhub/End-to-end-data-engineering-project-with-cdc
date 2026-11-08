@@ -91,7 +91,9 @@ python simulator/producer.py --dry-run --count 5
 - [x] **3. Metadata sync.** `scripts/sync_metadata.py`, then `pl_master` driven by `ctl.vw_*` views and logging procs.
       Stage 1 (Copy jobs) and stage 2 (Silver + DQ logging) verified; file ingest and Gold stages come with phases 5 and 7.
 - [x] **4. Silver and DQ.** `env_cdc_framework` (Runtime 2.0 + wheel) and `nb_bronze_to_silver`; verified on Customers (SCD2).
-- [ ] **5. Cold path.** ADLS shortcut, `nb_ingest_files`, storage event trigger.
+- [x] **5. Cold path.** ADLS (`dataengcdc/landing`) shortcut, `nb_ingest_files`, ingest stage in `pl_master`, and
+      `pl_file_arrival` run by a storage event trigger (`es_file_arrival` → `act_file_arrival`). Sample files:
+      `scripts/generate_partner_files.py`.
 - [ ] **6. Hot path.** Eventhouse plus `deploy_kql.py --apply`, Eventstream custom endpoint, simulator,
       Real-Time Dashboard, Activator (`--freezer-fault-store 7` to trigger the alert).
 - [ ] **7. Gold and BI.** `nb_build_gold`, OneLake availability shortcut, Direct Lake model, report, and an ops page on `ctl.run_log`.

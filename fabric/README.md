@@ -24,7 +24,8 @@ from the Source control pane.
 | `nb_bronze_to_silver` | Notebook | Created; source of truth is `fabric/nb_bronze_to_silver.Notebook/` (edit in Fabric, commit) |
 | `nb_build_gold` | Notebook | Paste from `notebooks/nb_build_gold.py`, then delete that file once synced here |
 | `pl_master` | Data pipeline | Orchestration (below) |
-| `pl_file_arrival` | Data pipeline | Storage event trigger on ADLS `landing/partners/**` |
+| `pl_file_arrival` | Data pipeline | One file → ingest + Silver for the matching entity. Folder/file from `@pipeline()?.TriggerEvent` (parameters are the manual-run fallback) |
+| `es_file_arrival` / `act_file_arrival` | Eventstream / Activator | Created by *Add trigger* on `pl_file_arrival`: BlobCreated events from `dataengcdc` → run the pipeline |
 | `eh_retail_rt` / `kql_retail_rt` | Eventhouse / KQL DB | Hot path. Objects from `scripts/deploy_kql.py --apply` |
 | `es_retail_events` | Eventstream | Custom endpoint → `events_raw` |
 | `rtd_store_ops` | Real-Time Dashboard | Live sales, freezer temps, funnel |
