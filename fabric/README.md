@@ -22,7 +22,7 @@ from the Source control pane.
 | `cj_wwi_watermark` | Copy job | StockItemHoldings: watermark on `LastEditedWhen`, Merge write. **Rendered from metadata** |
 | `nb_ingest_files` | Notebook | Created; source of truth is `fabric/nb_ingest_files.Notebook/`. Reads `Files/landing/partners/` via the `landing` shortcut (→ `dataengcdc/landing`) |
 | `nb_bronze_to_silver` | Notebook | Created; source of truth is `fabric/nb_bronze_to_silver.Notebook/` (edit in Fabric, commit) |
-| `nb_build_gold` | Notebook | Paste from `notebooks/nb_build_gold.py`, then delete that file once synced here |
+| `nb_build_gold` | Notebook | Created; source of truth is `fabric/nb_build_gold.Notebook/`. Silver → star schema in `lh_gold.dbo` (SCD2 point-in-time keys, -1 unknown members) |
 | `pl_master` | Data pipeline | Orchestration (below) |
 | `pl_file_arrival` | Data pipeline | One file → ingest + Silver for the matching entity. Folder/file from `@pipeline()?.TriggerEvent` (parameters are the manual-run fallback) |
 | `es_file_arrival` / `act_file_arrival` | Eventstream / Activator | Created by *Add trigger* on `pl_file_arrival`: BlobCreated events from `dataengcdc` → run the pipeline |

@@ -47,7 +47,6 @@ src/cdc_framework/          # Python package (also built as a wheel for the Fabr
   control_db.py             # sync metadata -> control DB
   auth.py                   # Entra credential (az login / GitHub OIDC)
 scripts/                    # validate_metadata, sync_metadata, snapshot_source_schema, generate_copy_jobs, deploy_kql
-notebooks/                  # notebook drafts not yet created in Fabric (once synced, fabric/<nb>.Notebook is the source)
 simulator/                  # POS / IoT / clickstream event producer
 fabric/                     # Fabric Git integration folder (items synced from DEV) + parameter.yml
 deploy/deploy.py            # fabric-cicd promotion to TEST/PROD
