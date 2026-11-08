@@ -1,1 +1,28 @@
-[]
+[
+  {
+    "name": "run_log",
+    "path": "/Tables/dbo",
+    "target": {
+      "type": "OneLake",
+      "oneLake": {
+        "path": "Tables/ctl/run_log",
+        "itemId": "2928ae9a-6bcc-8d37-4cea-ce4766612733",
+        "workspaceId": "00000000-0000-0000-0000-000000000000",
+        "artifactType": "SQLDbNative"
+      }
+    }
+  },
+  {
+    "name": "dq_result",
+    "path": "/Tables/dbo",
+    "target": {
+      "type": "OneLake",
+      "oneLake": {
+        "path": "Tables/ctl/dq_result",
+        "itemId": "2928ae9a-6bcc-8d37-4cea-ce4766612733",
+        "workspaceId": "00000000-0000-0000-0000-000000000000",
+        "artifactType": "SQLDbNative"
+      }
+    }
+  }
+]

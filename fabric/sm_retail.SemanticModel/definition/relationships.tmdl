@@ -1,0 +1,32 @@
+relationship 6d0c9721-0d15-8dc5-0cb7-8f953a0d1bc5
+	fromColumn: fact_sales.customer_key
+	toColumn: dim_customer.customer_key
+
+relationship d3d498d8-e40b-c7aa-6242-97180eb764a8
+	fromColumn: fact_sales.order_date_key
+	toColumn: dim_date.date_key
+
+relationship 19b7732f-e50a-4f1c-a92f-fbf3b3ff70e2
+	fromColumn: fact_sales.stock_item_key
+	toColumn: dim_stock_item.stock_item_key
+
+relationship 1b66fa84-969f-f75a-85ae-45385b143d8d
+	fromColumn: fact_store_footfall.store_id
+	toColumn: dim_store.store_id
+
+relationship a2ddc59d-e325-c732-0680-e7572e7b1fb9
+	fromColumn: fact_store_footfall.date_key
+	toColumn: dim_date.date_key
+
+relationship a784acd6-8ff2-9c2e-319a-ec60fbd7d35c
+	fromColumn: fact_promotion.start_date_key
+	toColumn: dim_date.date_key
+
+relationship 6c7dffc0-eb51-8edc-92fe-a8d6d68373c3
+	fromColumn: fact_stock_holding.stock_item_key
+	toColumn: dim_stock_item.stock_item_key
+
+relationship 114aee81-0bbb-32ad-2f7c-3f6704250ec4
+	fromColumn: fact_promotion.stock_item_key
+	toColumn: dim_stock_item.stock_item_key
+

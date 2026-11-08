@@ -1,0 +1,74 @@
+table fact_promotion
+	lineageTag: cafb60de-8179-4e53-8bfc-c53b8d67c90b
+	sourceLineageTag: [dbo].[fact_promotion]
+
+	column promo_id
+		dataType: string
+		lineageTag: de33920a-14a2-4db5-a773-75a0f5249964
+		sourceLineageTag: promo_id
+		summarizeBy: none
+		sourceColumn: promo_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column start_date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: aad4260a-acf7-4cb3-b622-af8a4957581a
+		sourceLineageTag: start_date_key
+		summarizeBy: none
+		sourceColumn: start_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column start_date
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 3bff1527-74fc-4ccb-b5d6-9b0defe114fe
+		sourceLineageTag: start_date
+		summarizeBy: none
+		sourceColumn: start_date
+
+		annotation SummarizationSetBy = Automatic
+
+	column end_date
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: c6cd5a73-d877-4521-9939-7a255499a735
+		sourceLineageTag: end_date
+		summarizeBy: none
+		sourceColumn: end_date
+
+		annotation SummarizationSetBy = Automatic
+
+	column stock_item_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e4f2f4b7-13d2-4fbe-98bd-7087bd984986
+		sourceLineageTag: stock_item_key
+		summarizeBy: none
+		sourceColumn: stock_item_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column discount_pct
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 1bb64dc2-a7ab-495a-84ba-bf904773d39c
+		sourceLineageTag: discount_pct
+		summarizeBy: sum
+		sourceColumn: discount_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	partition fact_promotion = entity
+		mode: directLake
+		source
+			entityName: fact_promotion
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+
