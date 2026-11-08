@@ -79,9 +79,18 @@ SELECT -1, -1, 'Unknown', NULL, NULL, NULL, NULL, timestamp'1900-01-01', timesta
 """)
 
 # %% dim_store (partner footfall feed; latest name/region per store)
+# Include quarantined footfall rows: a bad visitor count shouldn't drop a store from the dimension.
+quarantined = f"{silver}.quarantine_store_footfall"
+quarantine_rows = (
+    f"UNION ALL SELECT store_id, store_name, region, footfall_date FROM {quarantined} WHERE store_id IS NOT NULL"
+    if spark.catalog.tableExists(quarantined) else ""  # noqa: F821
+)
 build("dim_store", f"""
 SELECT store_id, max_by(store_name, footfall_date) AS store_name, max_by(region, footfall_date) AS region
-FROM {silver}.store_footfall
+FROM (
+    SELECT store_id, store_name, region, footfall_date FROM {silver}.store_footfall
+    {quarantine_rows}
+)
 GROUP BY store_id
 """)
 
