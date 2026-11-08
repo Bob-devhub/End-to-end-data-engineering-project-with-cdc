@@ -640,6 +640,7 @@
       {
         "type": "ForEach",
         "typeProperties": {
+          "batchCount": 2,
           "items": {
             "value": "@activity('lkp_files').output.value",
             "type": "Expression"
