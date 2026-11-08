@@ -22,10 +22,14 @@
   "streams": [
     {
       "id": "a3225865-9411-45d1-b1fa-ba6bf2601b12",
-      "name": "new_eventstream_1-stream",
+      "name": "es_file_arrival",
       "type": "DefaultStream",
       "properties": {},
-      "inputNodes": []
+      "inputNodes": [
+        {
+          "name": "EventLinks"
+        }
+      ]
     }
   ],
   "operators": [],
