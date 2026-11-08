@@ -2,6 +2,14 @@ table dq_result
 	lineageTag: 393ee2f4-80b0-4dea-8b09-d745a9f33bf0
 	sourceLineageTag: [dbo].[dq_result]
 
+	measure 'DQ Checks' = COUNTROWS(dq_result)
+		formatString: #,0
+		lineageTag: 186a8943-95e1-4f66-8f1e-806212420d8b
+
+	measure 'DQ Breaches' = CALCULATE(COUNTROWS(dq_result), dq_result[breached] = TRUE())
+		formatString: #,0
+		lineageTag: 243cc7b5-bab9-4431-82fe-abd77906eb26
+
 	column dq_result_id
 		dataType: int64
 		formatString: 0

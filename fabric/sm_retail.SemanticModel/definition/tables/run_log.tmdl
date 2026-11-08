@@ -2,6 +2,26 @@ table run_log
 	lineageTag: 4afb4480-8770-4ea2-9a8b-09aef02f4011
 	sourceLineageTag: [dbo].[run_log]
 
+	measure Runs = COUNTROWS(run_log)
+		formatString: #,0
+		lineageTag: 20f3f00c-bcf9-40e5-96bf-9c071ec49e38
+
+	measure 'Failed Runs' = CALCULATE(COUNTROWS(run_log), run_log[status] = "failed")
+		formatString: #,0
+		lineageTag: 5525e9dd-ac3b-4c39-8153-aaa320d3dbb8
+
+	measure 'Success Rate' = DIVIDE(CALCULATE(COUNTROWS(run_log), run_log[status] = "succeeded"), [Runs])
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 4f907356-1bf1-46be-88d9-ed37fb7b132f
+
+	measure 'Avg Duration (s)' = AVERAGEX(FILTER(run_log, NOT ISBLANK(run_log[ended_at]) && run_log[status] <> "abandoned"), DATEDIFF(run_log[started_at], run_log[ended_at], SECOND))
+		formatString: #,0
+		lineageTag: 49e99860-61b9-411e-9c2c-76d39603797c
+
+	measure 'Quarantined Rows' = SUM(run_log[rows_quarantined])
+		formatString: #,0
+		lineageTag: 39058d9d-dcc9-4bcb-8dd3-233cf50908bb
+
 	column run_log_id
 		dataType: int64
 		formatString: 0
