@@ -30,7 +30,7 @@ from the Source control pane.
 | `es_retail_events` | Eventstream | Custom endpoint → `events_raw` |
 | `rtd_store_ops` | Real-Time Dashboard | Live sales, freezer temps, funnel |
 | `act_store_alerts` | Activator | Alerts from `kql/generated/alerts/*.kql` |
-| `sm_retail` / `rpt_retail` | Semantic model / Report | Direct Lake on `lh_gold` |
+| `sm_retail` / `rpt_retail` | Semantic model / Report | Direct Lake on `lh_gold` (incl. `run_log`/`dq_result` shortcuts). Report bound by relative path, no parameters needed |
 
 ## pl_master design
 
@@ -53,7 +53,7 @@ from the Source control pane.
        ├─ ✓ sp_log_dq           ctl.usp_log_dq_results (@string(json(exitValue).dq_results))
        └─ ✗ sp_log_fail_silver  ctl.usp_log_run_end (failed, @activity('nb_silver').error.message)
 
-[todo]  Notebook nb_build_gold
+[built] lkp_log_start_gold -> nb_gold (nb_build_gold) -> sp_log_ok_gold / sp_log_fail_gold
 ```
 
 Pipeline gotchas we hit:

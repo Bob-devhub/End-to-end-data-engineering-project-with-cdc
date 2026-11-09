@@ -95,7 +95,8 @@ python simulator/producer.py --dry-run --count 5
       `scripts/generate_partner_files.py`.
 - [ ] **6. Hot path.** Eventhouse plus `deploy_kql.py --apply`, Eventstream custom endpoint, simulator,
       Real-Time Dashboard, Activator (`--freezer-fault-store 7` to trigger the alert).
-- [ ] **7. Gold and BI.** `nb_build_gold`, OneLake availability shortcut, Direct Lake model, report, and an ops page on `ctl.run_log`.
+- [x] **7. Gold and BI.** `nb_build_gold` (gold stage in `pl_master`), Direct Lake `sm_retail` (13 measures, ops tables
+      shortcut from `sqldb_control`), `rpt_retail` (Sales, Stores and Stock, Operations). `fact_pos_daily` waits on phase 6.
 - [ ] **8. CI/CD.** GitHub OIDC service principal, TEST/PROD workspaces, `fabric/parameter.yml`, `deploy.yml`.
 
 ## Key design decisions
