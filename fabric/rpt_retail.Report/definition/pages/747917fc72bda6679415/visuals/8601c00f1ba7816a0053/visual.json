@@ -1,0 +1,140 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "8601c00f1ba7816a0053",
+  "position": {
+    "x": 960,
+    "y": 540.75949367088606,
+    "z": 0,
+    "height": 521.01265822784808,
+    "width": 941.77215189873414,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_promotion"
+                    }
+                  },
+                  "Property": "promo_id"
+                }
+              },
+              "queryRef": "fact_promotion.promo_id",
+              "nativeQueryRef": "promo_id"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_promotion"
+                    }
+                  },
+                  "Property": "start_date"
+                }
+              },
+              "queryRef": "fact_promotion.start_date",
+              "nativeQueryRef": "start_date"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_promotion"
+                    }
+                  },
+                  "Property": "end_date"
+                }
+              },
+              "queryRef": "fact_promotion.end_date",
+              "nativeQueryRef": "end_date"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_promotion"
+                    }
+                  },
+                  "Property": "discount_pct"
+                }
+              },
+              "queryRef": "Sum(fact_promotion.discount_pct)",
+              "nativeQueryRef": "discount_pct"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "ad1f94f21590a33281da",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_promotion"
+              }
+            },
+            "Property": "promo_id"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "2b5fd1ef976b55e657ad",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_promotion"
+              }
+            },
+            "Property": "start_date"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "86f5fc40315cc05b9b2c",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_promotion"
+              }
+            },
+            "Property": "end_date"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "bda3345c45b08660359d",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_promotion"
+              }
+            },
+            "Property": "discount_pct"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}
