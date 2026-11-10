@@ -65,6 +65,6 @@
 .alter table clickstream policy retention @'{"SoftDeletePeriod":"30.00:00:00","Recoverability":"Enabled"}'
 .alter table iot_readings policy retention @'{"SoftDeletePeriod":"90.00:00:00","Recoverability":"Enabled"}'
 .alter table pos_transactions policy retention @'{"SoftDeletePeriod":"365.00:00:00","Recoverability":"Enabled"}'
-.alter table clickstream policy update "[{\"IsEnabled\":true,\"Source\":\"events_raw\",\"Query\":\"fn_parse_clickstream()\",\"IsTransactional\":true,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null,\"IsAsync\":false}]"
-.alter table iot_readings policy update "[{\"IsEnabled\":true,\"Source\":\"events_raw\",\"Query\":\"fn_parse_iot_readings()\",\"IsTransactional\":true,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null,\"IsAsync\":false}]"
-.alter table pos_transactions policy update "[{\"IsEnabled\":true,\"Source\":\"events_raw\",\"Query\":\"fn_parse_pos_transactions()\",\"IsTransactional\":true,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null,\"IsAsync\":false}]"
+.alter table clickstream policy update "[{\"IsEnabled\":true,\"Source\":\"events_raw\",\"Query\":\"fn_parse_clickstream()\",\"IsTransactional\":true,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null}]"
+.alter table iot_readings policy update "[{\"IsEnabled\":true,\"Source\":\"events_raw\",\"Query\":\"fn_parse_iot_readings()\",\"IsTransactional\":true,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null}]"
+.alter table pos_transactions policy update "[{\"IsEnabled\":true,\"Source\":\"events_raw\",\"Query\":\"fn_parse_pos_transactions()\",\"IsTransactional\":true,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null}]"
