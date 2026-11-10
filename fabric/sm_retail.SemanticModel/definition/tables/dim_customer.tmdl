@@ -1,0 +1,112 @@
+table dim_customer
+	lineageTag: 3e8402bc-f145-4c7a-abf2-23b2115304df
+	sourceLineageTag: [dbo].[dim_customer]
+
+	column customer_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9caa6ea8-db2a-4d84-aa88-84a068a1bb1d
+		sourceLineageTag: customer_key
+		summarizeBy: none
+		sourceColumn: customer_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 611dbcd1-b803-4fb4-a425-d850b38d2421
+		sourceLineageTag: customer_id
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_name
+		dataType: string
+		lineageTag: ff32167e-433e-4edf-927e-4404185173cb
+		sourceLineageTag: customer_name
+		summarizeBy: none
+		sourceColumn: customer_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_category_id
+		dataType: int64
+		formatString: 0
+		lineageTag: b1bb45c0-bc51-44a5-aea3-9878444d8200
+		sourceLineageTag: customer_category_id
+		summarizeBy: none
+		sourceColumn: customer_category_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column delivery_city_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 50b929e5-b128-4c8a-88cb-12f39fa9f832
+		sourceLineageTag: delivery_city_id
+		summarizeBy: none
+		sourceColumn: delivery_city_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column credit_limit
+		dataType: double
+		lineageTag: ab4b557d-ed15-4241-90be-7532d258b3d4
+		sourceLineageTag: credit_limit
+		summarizeBy: sum
+		sourceColumn: credit_limit
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column account_opened_date
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: ca6f4747-f45d-43b6-9513-2c0c689fffc0
+		sourceLineageTag: account_opened_date
+		summarizeBy: none
+		sourceColumn: account_opened_date
+
+		annotation SummarizationSetBy = Automatic
+
+	column effective_from
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 05fab32c-3c5d-4b00-b6af-b734321bf14b
+		sourceLineageTag: effective_from
+		summarizeBy: none
+		sourceColumn: effective_from
+
+		annotation SummarizationSetBy = Automatic
+
+	column effective_to
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: a21577a7-32d9-42ad-b78f-4ac9d3f03160
+		sourceLineageTag: effective_to
+		summarizeBy: none
+		sourceColumn: effective_to
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_current
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 8b9d9b99-9f65-4605-a1c2-900a9a7d35c9
+		sourceLineageTag: is_current
+		summarizeBy: none
+		sourceColumn: is_current
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_customer = entity
+		mode: directLake
+		source
+			entityName: dim_customer
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

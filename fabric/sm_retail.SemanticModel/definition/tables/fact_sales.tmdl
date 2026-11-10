@@ -1,0 +1,134 @@
+table fact_sales
+	lineageTag: 01b7b3f0-a7f4-4e88-a925-caa3c7be7fa1
+	sourceLineageTag: [dbo].[fact_sales]
+
+	measure 'Total Sales' = SUM(fact_sales[line_amount])
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: e80a8999-2976-46b1-8b59-517801bb9830
+
+	measure Orders = DISTINCTCOUNT(fact_sales[order_id])
+		formatString: #,0
+		lineageTag: ee211da9-e863-4a12-930b-9bc6555fe8df
+
+	measure Units = SUM(fact_sales[quantity])
+		formatString: #,0
+		lineageTag: a9e67067-d4ec-4bba-b0ba-82ff81351f47
+
+	measure 'Avg Order Value' = DIVIDE([Total Sales], [Orders])
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: ac34fba1-6609-41d5-8a89-8e388d61401f
+
+	column order_line_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 7bb695d4-0e9c-4372-b113-5fd8f1e8cf15
+		sourceLineageTag: order_line_id
+		summarizeBy: none
+		sourceColumn: order_line_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 0aa8ab5b-a9ca-4cf3-862c-ad92d653a846
+		sourceLineageTag: order_id
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c5dccfb7-caaf-4954-8a65-59c74c5a6d56
+		sourceLineageTag: order_date_key
+		summarizeBy: none
+		sourceColumn: order_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: f662ac75-10d2-40d3-95db-feacfe39711c
+		sourceLineageTag: customer_key
+		summarizeBy: none
+		sourceColumn: customer_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column stock_item_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 13627da6-9055-4870-b584-1dcc69fdeb00
+		sourceLineageTag: stock_item_key
+		summarizeBy: none
+		sourceColumn: stock_item_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: ed9e0c29-4a60-49e7-aa71-9fe2834a8a66
+		sourceLineageTag: quantity
+		summarizeBy: sum
+		sourceColumn: quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_price
+		dataType: double
+		lineageTag: e6541cfd-c5ee-4263-9f05-652ac14a0da8
+		sourceLineageTag: unit_price
+		summarizeBy: sum
+		sourceColumn: unit_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column tax_rate
+		dataType: double
+		lineageTag: 59339398-2869-4712-a631-5181b0e895e0
+		sourceLineageTag: tax_rate
+		summarizeBy: sum
+		sourceColumn: tax_rate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column line_amount
+		dataType: double
+		lineageTag: 3dd5bcc3-7e9b-43e3-afdb-00d6031ea5c2
+		sourceLineageTag: line_amount
+		summarizeBy: sum
+		sourceColumn: line_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column tax_amount
+		dataType: double
+		lineageTag: 897d362c-3058-4465-84cf-e8c4c92ae6d9
+		sourceLineageTag: tax_amount
+		summarizeBy: sum
+		sourceColumn: tax_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition fact_sales = entity
+		mode: directLake
+		source
+			entityName: fact_sales
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

@@ -1,0 +1,74 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "4a96d801025994a0a9db",
+  "position": {
+    "x": 666.83544303797464,
+    "y": 291.64556962025318,
+    "z": 3,
+    "height": 262.78481012658227,
+    "width": 279.49367088607596,
+    "tabOrder": 3
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dq_result"
+                    }
+                  },
+                  "Property": "DQ Breaches"
+                }
+              },
+              "queryRef": "dq_result.DQ Breaches",
+              "nativeQueryRef": "DQ Breaches"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "dq_result"
+                  }
+                },
+                "Property": "DQ Breaches"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "d359cadca037cdb0ed47",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dq_result"
+              }
+            },
+            "Property": "DQ Breaches"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

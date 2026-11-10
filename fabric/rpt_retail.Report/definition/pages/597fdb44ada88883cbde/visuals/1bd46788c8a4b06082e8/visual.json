@@ -1,0 +1,227 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "1bd46788c8a4b06082e8",
+  "position": {
+    "x": 970.632911392405,
+    "y": 569.620253164557,
+    "z": 6,
+    "height": 493.6708860759494,
+    "width": 937.21518987341778,
+    "tabOrder": 6
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dq_result"
+                    }
+                  },
+                  "Property": "breached"
+                }
+              },
+              "queryRef": "dq_result.breached",
+              "nativeQueryRef": "breached"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dq_result"
+                    }
+                  },
+                  "Property": "entity_id"
+                }
+              },
+              "queryRef": "dq_result.entity_id",
+              "nativeQueryRef": "entity_id"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dq_result"
+                    }
+                  },
+                  "Property": "rule_name"
+                }
+              },
+              "queryRef": "dq_result.rule_name",
+              "nativeQueryRef": "rule_name"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dq_result"
+                        }
+                      },
+                      "Property": "failed_rows"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(dq_result.failed_rows)",
+              "nativeQueryRef": "Sum of failed_rows"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dq_result"
+                        }
+                      },
+                      "Property": "total_rows"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(dq_result.total_rows)",
+              "nativeQueryRef": "Sum of total_rows"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "f3c198a52b60b9970327",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dq_result"
+              }
+            },
+            "Property": "breached"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "d",
+              "Entity": "dq_result",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "d"
+                          }
+                        },
+                        "Property": "breached"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "true"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "54739e492c566041c8c0",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dq_result"
+              }
+            },
+            "Property": "entity_id"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "1c6521780d246803e3c0",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dq_result"
+              }
+            },
+            "Property": "rule_name"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "af7a83c14d6ab2266718",
+        "field": {
+          "Aggregation": {
+            "Expression": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "dq_result"
+                  }
+                },
+                "Property": "failed_rows"
+              }
+            },
+            "Function": 0
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "826e5f967ecb00347a0b",
+        "field": {
+          "Aggregation": {
+            "Expression": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "dq_result"
+                  }
+                },
+                "Property": "total_rows"
+              }
+            },
+            "Function": 0
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

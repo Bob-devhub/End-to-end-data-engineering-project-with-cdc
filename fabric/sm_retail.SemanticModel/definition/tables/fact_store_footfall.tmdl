@@ -1,0 +1,46 @@
+table fact_store_footfall
+	lineageTag: 10f66360-e559-4305-9b85-84a8ecfc873f
+	sourceLineageTag: [dbo].[fact_store_footfall]
+
+	measure 'Total Visitors' = SUM(fact_store_footfall[visitors])
+		formatString: #,0
+		lineageTag: 657118d4-cc7c-45c0-9fef-4f3468c0b733
+
+	column date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e5b97287-c2ef-48bd-9ce4-631f3f369659
+		sourceLineageTag: date_key
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 1020ec1c-3427-4d0f-ba5e-85a2d26f10b7
+		sourceLineageTag: store_id
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column visitors
+		dataType: int64
+		formatString: 0
+		lineageTag: 92cb2a3c-fb26-4b4f-9bec-4c03a05c076f
+		sourceLineageTag: visitors
+		summarizeBy: sum
+		sourceColumn: visitors
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_store_footfall = entity
+		mode: directLake
+		source
+			entityName: fact_store_footfall
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

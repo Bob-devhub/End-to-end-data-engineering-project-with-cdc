@@ -1,0 +1,70 @@
+// KQL script
+// Use management commands in this script to configure your database items, such as tables, functions, materialized views, and more.
+
+
+.create-merge table events_raw (event:dynamic, event_type:string, device_id:string, store_id:string, sensor_type:string, value:real, unit:string, event_time:datetime, session_id:guid, customer_id:string, page:string, action:string, stock_item_id:string, transaction_id:guid, register_id:string, quantity:int, unit_price:real, amount:real, payment_method:string) 
+.create-or-alter table events_raw ingestion json mapping 'events_raw_mapping'
+```
+[{"Properties":{"Path":"$"},"column":"event","datatype":""}]
+```
+.create-or-alter table events_raw ingestion json mapping 'events_raw_mapping_2'
+```
+[{"Properties":{"Path":"$['event_type']"},"column":"event_type","datatype":""},{"Properties":{"Path":"$['device_id']"},"column":"device_id","datatype":""},{"Properties":{"Path":"$['store_id']"},"column":"store_id","datatype":""},{"Properties":{"Path":"$['sensor_type']"},"column":"sensor_type","datatype":""},{"Properties":{"Path":"$['value']"},"column":"value","datatype":""},{"Properties":{"Path":"$['unit']"},"column":"unit","datatype":""},{"Properties":{"Path":"$['event_time']"},"column":"event_time","datatype":""},{"Properties":{"Path":"$['session_id']"},"column":"session_id","datatype":""},{"Properties":{"Path":"$['customer_id']"},"column":"customer_id","datatype":""},{"Properties":{"Path":"$['page']"},"column":"page","datatype":""},{"Properties":{"Path":"$['action']"},"column":"action","datatype":""},{"Properties":{"Path":"$['stock_item_id']"},"column":"stock_item_id","datatype":""},{"Properties":{"Path":"$['transaction_id']"},"column":"transaction_id","datatype":""},{"Properties":{"Path":"$['register_id']"},"column":"register_id","datatype":""},{"Properties":{"Path":"$['quantity']"},"column":"quantity","datatype":""},{"Properties":{"Path":"$['unit_price']"},"column":"unit_price","datatype":""},{"Properties":{"Path":"$['amount']"},"column":"amount","datatype":""},{"Properties":{"Path":"$['payment_method']"},"column":"payment_method","datatype":""}]
+```
+.create-merge table clickstream (session_id:string, customer_id:int, page:string, action:string, stock_item_id:int, event_time:datetime) 
+.create-merge table iot_readings (device_id:string, store_id:int, sensor_type:string, value:real, unit:string, event_time:datetime) 
+.create-merge table pos_transactions (transaction_id:string, store_id:int, register_id:int, stock_item_id:int, quantity:int, unit_price:real, amount:real, payment_method:string, event_time:datetime) 
+.create-or-alter function with (folder = "parse", docstring = "Online store clickstream - view, add_to_cart, checkout", skipvalidation = "true") fn_parse_clickstream() {
+    events_raw
+    | extend event = iff(isnull(column_ifexists('event', dynamic(null))), pack_all(true), column_ifexists('event', dynamic(null)))
+    | where tostring(event['event_type']) == 'click'
+    | project
+        session_id = tostring(event['session_id']),
+        customer_id = toint(event['customer_id']),
+        page = tostring(event['page']),
+        action = tostring(event['action']),
+        stock_item_id = toint(event['stock_item_id']),
+        event_time = todatetime(event['event_time'])
+}
+.create-or-alter function with (folder = "parse", docstring = "Store sensors - freezer/fridge temperature, door state, footfall counters", skipvalidation = "true") fn_parse_iot_readings() {
+    events_raw
+    | extend event = iff(isnull(column_ifexists('event', dynamic(null))), pack_all(true), column_ifexists('event', dynamic(null)))
+    | where tostring(event['event_type']) == 'iot_reading'
+    | project
+        device_id = tostring(event['device_id']),
+        store_id = toint(event['store_id']),
+        sensor_type = tostring(event['sensor_type']),
+        value = toreal(event['value']),
+        unit = tostring(event['unit']),
+        event_time = todatetime(event['event_time'])
+}
+.create-or-alter function with (folder = "parse", docstring = "Point-of-sale line items from every store register", skipvalidation = "true") fn_parse_pos_transactions() {
+    events_raw
+    | extend event = iff(isnull(column_ifexists('event', dynamic(null))), pack_all(true), column_ifexists('event', dynamic(null)))
+    | where tostring(event['event_type']) == 'pos_transaction'
+    | project
+        transaction_id = tostring(event['transaction_id']),
+        store_id = toint(event['store_id']),
+        register_id = toint(event['register_id']),
+        stock_item_id = toint(event['stock_item_id']),
+        quantity = toint(event['quantity']),
+        unit_price = toreal(event['unit_price']),
+        amount = toreal(event['amount']),
+        payment_method = tostring(event['payment_method']),
+        event_time = todatetime(event['event_time'])
+}
+.create-or-alter materialized-view  mv_click_funnel_5m on table clickstream { clickstream
+    | summarize events = count(), sessions = dcount(session_id) by action, window_start = bin(event_time, 5m) }
+.create-or-alter materialized-view  mv_iot_device_1m on table iot_readings { iot_readings
+    | summarize avg_value = avg(value), max_value = max(value), readings = count() by store_id, device_id, sensor_type, window_start = bin(event_time, 1m) }
+.create-or-alter materialized-view  mv_pos_sales_1m on table pos_transactions { pos_transactions
+    | summarize revenue = sum(amount), units = sum(quantity), transactions = dcount(transaction_id) by store_id, window_start = bin(event_time, 1m) }
+.create-or-alter materialized-view  mv_pos_item_velocity_15m on table pos_transactions { pos_transactions
+    | summarize units = sum(quantity) by store_id, stock_item_id, window_start = bin(event_time, 15m) }
+.alter table events_raw policy retention @'{"SoftDeletePeriod":"7.00:00:00","Recoverability":"Enabled"}'
+.alter table clickstream policy retention @'{"SoftDeletePeriod":"30.00:00:00","Recoverability":"Enabled"}'
+.alter table iot_readings policy retention @'{"SoftDeletePeriod":"90.00:00:00","Recoverability":"Enabled"}'
+.alter table pos_transactions policy retention @'{"SoftDeletePeriod":"365.00:00:00","Recoverability":"Enabled"}'
+.alter table clickstream policy update "[{\"IsEnabled\":true,\"Source\":\"events_raw\",\"Query\":\"fn_parse_clickstream()\",\"IsTransactional\":true,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null}]"
+.alter table iot_readings policy update "[{\"IsEnabled\":true,\"Source\":\"events_raw\",\"Query\":\"fn_parse_iot_readings()\",\"IsTransactional\":true,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null}]"
+.alter table pos_transactions policy update "[{\"IsEnabled\":true,\"Source\":\"events_raw\",\"Query\":\"fn_parse_pos_transactions()\",\"IsTransactional\":true,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null}]"

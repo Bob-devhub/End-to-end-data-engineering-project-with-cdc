@@ -65,3 +65,21 @@ optional `aggregates` and `alerts`. Producers send JSON with
 `"event_type": "<event_type>"` to the existing Eventstream. Then
 `scripts/deploy_kql.py --apply` creates the typed table, parse function,
 update policy and materialized views.
+
+**New JSON fields need a column in `events_raw`.** The Eventstream's Eventhouse
+destination (Direct ingestion) inferred one `events_raw` column per JSON field and
+uses its own mapping (`events_raw_mapping_2`), not `events_raw_mapping`. The parse
+functions don't care: they rebuild the event with `pack_all()` when `event` is empty.
+But a field the destination has never seen has no column and is dropped. When a
+stream adds fields, add them to `events_raw` and to the destination's mapping, e.g.:
+
+```kusto
+.alter-merge table events_raw (new_field: string)
+```
+
+then add `{"column":"new_field","Properties":{"Path":"$['new_field']"}}` to the
+mapping the destination uses (`.show table events_raw ingestion mappings`).
+
+Don't delete and re-add the Eventstream destination: the old Eventhouse connection
+can survive it and ingest every event twice (it happened in DEV). If that happens,
+recreate the Eventstream.

@@ -23,7 +23,7 @@ import time
 import uuid
 from datetime import UTC, datetime
 
-STORES = list(range(1, 21))
+STORES = list(range(1, 11))  # matches dim_store (partner footfall feed, scripts/generate_partner_files.py)
 STOCK_ITEMS = list(range(1, 228))
 PAYMENT_METHODS = ["card", "card", "card", "cash", "mobile"]
 PAGES = ["home", "search", "category", "product", "cart", "checkout"]

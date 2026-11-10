@@ -1,0 +1,74 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "1cbf8a657ce0627992e7",
+  "position": {
+    "x": 10.632911392405063,
+    "y": 16.708860759493671,
+    "z": 0,
+    "height": 262.78481012658227,
+    "width": 279.49367088607596,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "run_log"
+                    }
+                  },
+                  "Property": "Runs"
+                }
+              },
+              "queryRef": "run_log.Runs",
+              "nativeQueryRef": "Runs"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "run_log"
+                  }
+                },
+                "Property": "Runs"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "684f050dbea07538a155",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "run_log"
+              }
+            },
+            "Property": "Runs"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

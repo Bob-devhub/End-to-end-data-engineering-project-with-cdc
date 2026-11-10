@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "KQLDatabase",
+    "displayName": "kql_retail_rt"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "c62a8e5c-9c04-919e-4b2e-b37eb73160a8"
+  }
+}

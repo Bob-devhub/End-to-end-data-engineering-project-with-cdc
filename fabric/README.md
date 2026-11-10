@@ -20,37 +20,46 @@ from the Source control pane.
 | `cj_wwi_cdc_scd2` | Copy job | Customers, StockItems: CDC read, SCD Type 2 write. **Rendered from metadata** by `scripts/generate_copy_jobs.py` |
 | `cj_wwi_cdc_merge` | Copy job | Orders, OrderLines: CDC read, Merge write. **Rendered from metadata** |
 | `cj_wwi_watermark` | Copy job | StockItemHoldings: watermark on `LastEditedWhen`, Merge write. **Rendered from metadata** |
-| `nb_ingest_files` | Notebook | Paste from `notebooks/nb_ingest_files.py`, then delete that file once synced here |
+| `nb_ingest_files` | Notebook | Created; source of truth is `fabric/nb_ingest_files.Notebook/`. Reads `Files/landing/partners/` via the `landing` shortcut (→ `dataengcdc/landing`) |
 | `nb_bronze_to_silver` | Notebook | Created; source of truth is `fabric/nb_bronze_to_silver.Notebook/` (edit in Fabric, commit) |
-| `nb_build_gold` | Notebook | Paste from `notebooks/nb_build_gold.py`, then delete that file once synced here |
+| `nb_build_gold` | Notebook | Created; source of truth is `fabric/nb_build_gold.Notebook/`. Silver → star schema in `lh_gold.dbo` (SCD2 point-in-time keys, -1 unknown members) |
 | `pl_master` | Data pipeline | Orchestration (below) |
-| `pl_file_arrival` | Data pipeline | Storage event trigger on ADLS `landing/partners/**` |
+| `pl_file_arrival` | Data pipeline | One file → ingest + Silver for the matching entity. Folder/file from `@pipeline()?.TriggerEvent` (parameters are the manual-run fallback) |
+| `es_file_arrival` / `act_file_arrival` | Eventstream / Activator | Created by *Add trigger* on `pl_file_arrival`: BlobCreated events from `dataengcdc` → run the pipeline |
 | `eh_retail_rt` / `kql_retail_rt` | Eventhouse / KQL DB | Hot path. Objects from `scripts/deploy_kql.py --apply` |
 | `es_retail_events` | Eventstream | Custom endpoint → `events_raw` |
 | `rtd_store_ops` | Real-Time Dashboard | Live sales, freezer temps, funnel |
 | `act_store_alerts` | Activator | Alerts from `kql/generated/alerts/*.kql` |
-| `sm_retail` / `rpt_retail` | Semantic model / Report | Direct Lake on `lh_gold` |
+| `sm_retail` / `rpt_retail` | Semantic model / Report | Direct Lake on `lh_gold` (incl. `run_log`/`dq_result` shortcuts). Report bound by relative path, no parameters needed |
 
 ## pl_master design
 
 ```
-Lookup  "SELECT * FROM ctl.vw_active_copy_job_groups ORDER BY priority"
-  └─ ForEach (sequential=false, batch 3)
-       ├─ Stored proc  ctl.usp_log_run_start (stage='copy_job', entity=@item().copy_job_group)
-       ├─ Copy job activity  -> @item().copy_job_name
-       └─ Stored proc  ctl.usp_log_run_end (succeeded | failed)
+[built] lkp_copy_jobs   "SELECT copy_job_group, copy_job_name, copy_job_id FROM ctl.vw_active_copy_job_groups ORDER BY priority"
+  └─ fe_copy_jobs (parallel, batch 3)
+       ├─ lkp_log_start     EXEC ctl.usp_log_run_start (stage='copy_job')  -> run_log_id
+       ├─ run_copy_job      Copy job activity, copyJobId=@item().copy_job_id
+       ├─ ✓ sp_log_ok       ctl.usp_log_run_end (succeeded)
+       └─ ✗ sp_log_fail     ctl.usp_log_run_end (failed, @activity('run_copy_job').error.message)
 
-Lookup  "SELECT * FROM ctl.vw_active_entities WHERE ingestion_engine='notebook' ORDER BY priority"
+[todo]  Lookup "... vw_active_entities WHERE ingestion_engine='notebook'"
   └─ ForEach -> Notebook nb_ingest_files (entity_config_json=@item().config_json)
 
-Lookup  "SELECT * FROM ctl.vw_active_entities ORDER BY priority"
-  └─ ForEach
-       ├─ Notebook nb_bronze_to_silver (entity_config_json=@item().config_json)
-       ├─ Stored proc ctl.usp_log_run_end  (rows from exitValue)
-       └─ Stored proc ctl.usp_log_dq_results (@json(activity().output.result.exitValue).dq_results)
+[built] lkp_entities    "SELECT entity_id, config_json FROM ctl.vw_active_entities WHERE ingestion_engine='copy_job' ORDER BY priority"
+  └─ fe_silver (parallel, batch 2)
+       ├─ lkp_log_start_silver  EXEC ctl.usp_log_run_start (stage='silver')
+       ├─ nb_silver             nb_bronze_to_silver (entity_config_json, pipeline_run_id)
+       ├─ ✓ sp_log_ok_silver    ctl.usp_log_run_end (rows from @json(exitValue))
+       ├─ ✓ sp_log_dq           ctl.usp_log_dq_results (@string(json(exitValue).dq_results))
+       └─ ✗ sp_log_fail_silver  ctl.usp_log_run_end (failed, @activity('nb_silver').error.message)
 
-Notebook nb_build_gold
+[built] lkp_log_start_gold -> nb_gold (nb_build_gold) -> sp_log_ok_gold / sp_log_fail_gold
 ```
+
+Pipeline gotchas we hit:
+- Stored procedure Int64 params can't be blank: give a value or tick **Treat as null**.
+- Type expressions through **Add dynamic content**; a value saved without the leading `@` is passed as literal text.
+- The Notebook activity's connection uses a service principal, which needs Contributor on the workspace.
 
 A Copy job's run is driven by the pipeline, so leave the Copy jobs themselves
 unscheduled (or schedule them independently for lower latency on the warm path).

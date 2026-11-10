@@ -1,0 +1,74 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "92a6f0e00d29eb666089",
+  "position": {
+    "x": 10.632911392405063,
+    "y": 290.126582278481,
+    "z": 1,
+    "height": 265.82278481012656,
+    "width": 279.49367088607596,
+    "tabOrder": 1
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "run_log"
+                    }
+                  },
+                  "Property": "Success Rate"
+                }
+              },
+              "queryRef": "run_log.Success Rate",
+              "nativeQueryRef": "Success Rate"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "run_log"
+                  }
+                },
+                "Property": "Success Rate"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "18db3fbdd858b5594d30",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "run_log"
+              }
+            },
+            "Property": "Success Rate"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

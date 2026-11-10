@@ -12,11 +12,13 @@ from collections.abc import Iterable
 from typing import Any
 
 from cdc_framework.config import Metadata
+from cdc_framework.copy_jobs import copy_job_name
 
 SQL_COPT_SS_ACCESS_TOKEN = 1256  # msodbcsql pre-connect attribute for AAD tokens
 
 # Child tables first so deletes respect foreign keys.
 CONFIG_TABLES = [
+    "ctl.copy_job",
     "ctl.alert_rule",
     "ctl.stream_entity",
     "ctl.dq_rule",
@@ -43,9 +45,17 @@ def connect(server: str, database: str):
     return pyodbc.connect(conn_str, attrs_before={SQL_COPT_SS_ACCESS_TOKEN: token_struct})
 
 
-def build_rows(md: Metadata) -> dict[str, list[tuple[Any, ...]]]:
-    """Flatten metadata into rows per control table (pure function, testable)."""
+def build_rows(md: Metadata, copy_job_ids: dict[str, str] | None = None) -> dict[str, list[tuple[Any, ...]]]:
+    """Flatten metadata into rows per control table (pure function, testable).
+
+    copy_job_ids: {copy job name: Fabric item id} in the target workspace, so the
+    pipeline can run Copy jobs by id (ids differ per environment).
+    """
     rows: dict[str, list[tuple[Any, ...]]] = {t: [] for t in CONFIG_TABLES}
+    ids = copy_job_ids or {}
+    for group in sorted(md.copy_job_groups()):
+        name = copy_job_name(group)
+        rows["ctl.copy_job"].append((name, group, ids.get(name)))
     for s in md.source_systems:
         rows["ctl.source_system"].append(
             (s.system_id, s.type, s.description, s.connection_name, s.database, s.container, s.base_path)
@@ -85,6 +95,7 @@ def build_rows(md: Metadata) -> dict[str, list[tuple[Any, ...]]]:
 
 
 _INSERTS = {
+    "ctl.copy_job": "INSERT INTO ctl.copy_job (copy_job_name, copy_job_group, item_id) VALUES (?,?,?)",
     "ctl.source_system": (
         "INSERT INTO ctl.source_system (system_id, source_type, description, connection_name, "
         "database_name, container, base_path) VALUES (?,?,?,?,?,?,?)"
@@ -114,8 +125,8 @@ _INSERTS = {
 }
 
 
-def sync(conn, md: Metadata) -> dict[str, int]:
-    rows = build_rows(md)
+def sync(conn, md: Metadata, copy_job_ids: dict[str, str] | None = None) -> dict[str, int]:
+    rows = build_rows(md, copy_job_ids)
     cur = conn.cursor()
     cur.fast_executemany = True
     try:

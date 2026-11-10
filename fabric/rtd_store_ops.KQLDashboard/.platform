@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "KQLDashboard",
+    "displayName": "rtd_store_ops",
+    "description": "rtd_store_ops"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "a38e5534-13f1-8133-47b5-9646d62f5020"
+  }
+}

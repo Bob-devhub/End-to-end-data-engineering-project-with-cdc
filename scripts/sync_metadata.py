@@ -1,7 +1,10 @@
 """Push validated metadata from Git into the control database.
 
     python scripts/sync_metadata.py --dry-run
-    python scripts/sync_metadata.py --server <host> --database <db>
+    python scripts/sync_metadata.py --server <host> --database <db> --workspace-id <fabric workspace>
+
+--workspace-id resolves Copy job names to item ids in that workspace and stores
+them in ctl.copy_job, so pl_master can run each Copy job by id.
 
 Auth: az login locally, OIDC (azure/login) in GitHub Actions - see cdc_framework.auth.
 """
@@ -14,6 +17,8 @@ import sys
 
 from cdc_framework.config import load_metadata
 from cdc_framework.control_db import build_rows, connect, sync
+from cdc_framework.copy_jobs import copy_job_name
+from cdc_framework.fabric_api import list_items
 
 
 def main() -> int:
@@ -21,6 +26,7 @@ def main() -> int:
     parser.add_argument("--config-dir", default="metadata/config")
     parser.add_argument("--server", default=os.getenv("CONTROL_DB_SERVER"))
     parser.add_argument("--database", default=os.getenv("CONTROL_DB_NAME"))
+    parser.add_argument("--workspace-id", default=os.getenv("FABRIC_WORKSPACE_ID"))
     parser.add_argument("--dry-run", action="store_true", help="print row counts without connecting")
     args = parser.parse_args()
 
@@ -34,8 +40,20 @@ def main() -> int:
     if not args.server or not args.database:
         parser.error("--server/--database (or CONTROL_DB_SERVER/CONTROL_DB_NAME) are required")
 
+    copy_job_ids: dict[str, str] = {}
+    if args.workspace_id:
+        found = list_items(args.workspace_id, "CopyJob")
+        for group in md.copy_job_groups():
+            name = copy_job_name(group)
+            if name in found:
+                copy_job_ids[name] = found[name]
+            else:
+                print(f"WARNING: Copy job {name} not found in workspace {args.workspace_id}", file=sys.stderr)
+    else:
+        print("WARNING: no --workspace-id; ctl.copy_job.item_id will be NULL", file=sys.stderr)
+
     with connect(args.server, args.database) as conn:
-        counts = sync(conn, md)
+        counts = sync(conn, md, copy_job_ids)
     for table, n in counts.items():
         print(f"synced {table:<22} {n:>4} rows")
     return 0

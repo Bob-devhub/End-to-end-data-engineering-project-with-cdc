@@ -1,0 +1,39 @@
+table dim_store
+	lineageTag: 7ec55ebf-fa43-484b-95b0-8ecc982657e5
+	sourceLineageTag: [dbo].[dim_store]
+
+	column store_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 6ffb9cae-56aa-40f8-86b2-cd279d615f3a
+		sourceLineageTag: store_id
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_name
+		dataType: string
+		lineageTag: 86890c8b-4df5-4aee-a6c7-ac2db9093c49
+		sourceLineageTag: store_name
+		summarizeBy: none
+		sourceColumn: store_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column region
+		dataType: string
+		lineageTag: 0f6f5c32-2546-4515-b04c-c1ac22b35ddf
+		sourceLineageTag: region
+		summarizeBy: none
+		sourceColumn: region
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_store = entity
+		mode: directLake
+		source
+			entityName: dim_store
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

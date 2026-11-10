@@ -24,8 +24,66 @@ find_replace:
       PROD: "<prod-lakehouse-connection-id>"
     item_type: "CopyJob"
 
-  # Eventhouse query URI (add once the Eventhouse exists)
-  # - find_value: "https://<dev>.kusto.fabric.microsoft.com"
-  #   replace_value:
-  #     TEST: "https://<test>.kusto.fabric.microsoft.com"
-  #     PROD: "https://<prod>.kusto.fabric.microsoft.com"
+  # DEV workspace id hard-coded by pl_master's Copy job activity and act_file_arrival -> target workspace
+  # (no item_type filter: applies to every item that contains it)
+  - find_value: "9d04974e-4eed-49f7-8f94-d136f1e83a45"
+    replace_value:
+      TEST: "$workspace.id"
+      PROD: "$workspace.id"
+
+  # sqldb_control connection used by pl_master Lookups / stored procedures
+  - find_value: "495c388d-3495-4567-bf3b-60d7153cba76"
+    replace_value:
+      TEST: "<test-sqldb_control-connection-id>"
+      PROD: "<prod-sqldb_control-connection-id>"
+    item_type: "DataPipeline"
+
+  # Connection used by pl_master's Copy job activity
+  - find_value: "bf33c8a8-b035-4510-8f47-d1a1e75c2705"
+    replace_value:
+      TEST: "<test-copyjob-activity-connection-id>"
+      PROD: "<prod-copyjob-activity-connection-id>"
+    item_type: "DataPipeline"
+
+  # Connection used by pl_master's Notebook activity (nb_silver). DEV: "Notebook bob", service
+  # principal auth - that principal needs Contributor (or higher) on the target workspace.
+  - find_value: "f5e6308e-2668-442f-8fc9-21823d4843da"
+    replace_value:
+      TEST: "<test-notebook-activity-connection-id>"
+      PROD: "<prod-notebook-activity-connection-id>"
+    item_type: "DataPipeline"
+
+  # lh_bronze shortcut Files/landing -> ADLS landing container: connection (conn-adls-landing) and account
+  - find_value: "01ed05b8-a229-48aa-8543-c156151f43b7"
+    replace_value:
+      TEST: "<test-conn-adls-landing-id>"
+      PROD: "<prod-conn-adls-landing-id>"
+    item_type: "Lakehouse"
+  - find_value: "https://dataengcdc.dfs.core.windows.net"
+    replace_value:
+      TEST: "https://<test-account>.dfs.core.windows.net"
+      PROD: "https://<prod-account>.dfs.core.windows.net"
+    item_type: "Lakehouse"
+
+  # File-arrival trigger: es_file_arrival subscribes to the landing storage account's BlobCreated events,
+  # act_file_arrival (Activator) reads that Eventstream by item id and runs pl_file_arrival
+  - find_value: "/subscriptions/c3b18da3-2c7b-4829-87ec-0a3b03c7b50b/resourceGroups/bob-rg/providers/Microsoft.Storage/storageAccounts/dataengcdc"
+    replace_value:
+      TEST: "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<test-account>"
+      PROD: "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<prod-account>"
+  - find_value: "7f31296d-1b4d-410f-b782-4a33b2b4cb9a"   # es_file_arrival item id (DEV)
+    replace_value:
+      TEST: "$items.Eventstream.es_file_arrival.id"
+      PROD: "$items.Eventstream.es_file_arrival.id"
+    item_type: "Reflex"
+
+  # Hot path: kql_retail_rt (child of eh_retail_rt) is referenced by item id from es_retail_events
+  # (Eventhouse destination) and rtd_store_ops (data source), and by cluster URI from its embedded queryset
+  - find_value: "b73160a8-b37e-4b2e-919e-9c04c62a8e5c"   # kql_retail_rt item id (DEV)
+    replace_value:
+      TEST: "$items.KQLDatabase.kql_retail_rt.id"
+      PROD: "$items.KQLDatabase.kql_retail_rt.id"
+  - find_value: "https://trd-0jjvvz4p2kr4vzqh4g.z4.kusto.fabric.microsoft.com"   # eh_retail_rt query URI (DEV)
+    replace_value:
+      TEST: "https://<test-eventhouse>.kusto.fabric.microsoft.com"
+      PROD: "https://<prod-eventhouse>.kusto.fabric.microsoft.com"

@@ -44,3 +44,11 @@ def test_control_db_rows():
     assert len(rows["ctl.alert_rule"]) == sum(len(s.alerts) for s in MD.streams)
     bronze_tables = {r[14] for r in rows["ctl.source_entity"]}
     assert "Sales.Customers" in bronze_tables  # schema-qualified for schema-enabled lakehouses
+
+
+def test_copy_job_rows_carry_workspace_ids():
+    rows = build_rows(MD, {"cj_wwi_cdc_scd2": "53fe4efd-53de-4815-a031-ece8e84845d1"})
+    by_name = {r[0]: r for r in rows["ctl.copy_job"]}
+    assert set(by_name) == {"cj_wwi_cdc_scd2", "cj_wwi_cdc_merge", "cj_wwi_watermark"}
+    assert by_name["cj_wwi_cdc_scd2"][2] == "53fe4efd-53de-4815-a031-ece8e84845d1"
+    assert by_name["cj_wwi_cdc_merge"][2] is None  # not found in workspace -> NULL, sync warns

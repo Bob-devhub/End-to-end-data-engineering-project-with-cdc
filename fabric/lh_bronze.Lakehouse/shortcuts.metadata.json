@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "name": "landing",
+    "path": "/Files",
+    "target": {
+      "type": "AdlsGen2",
+      "adlsGen2": {
+        "connectionId": "01ed05b8-a229-48aa-8543-c156151f43b7",
+        "location": "https://dataengcdc.dfs.core.windows.net",
+        "subpath": "/landing"
+      }
+    }
+  }
+]

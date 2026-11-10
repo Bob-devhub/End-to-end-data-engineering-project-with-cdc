@@ -16,6 +16,12 @@ from cdc_framework.config import AlertRule, Stream, StreamAggregate
 RAW_TABLE = "events_raw"
 RAW_MAPPING = "events_raw_mapping"
 RAW_RETENTION_DAYS = 7
+# The event as one dynamic bag, whichever way Eventstream landed it: via RAW_MAPPING the whole JSON is
+# in `event`; if its destination wizard inferred one column per JSON field instead, rebuild the bag
+# from those columns (pack_all ignores the empty `event`). Parse functions never depend on the layout.
+RAW_EVENT_EXPR = (
+    "iff(isnull(column_ifexists('event', dynamic(null))), pack_all(true), column_ifexists('event', dynamic(null)))"
+)
 
 _CONVERTERS = {
     "string": "tostring",
@@ -69,6 +75,7 @@ def stream_commands(stream: Stream) -> list[str]:
         (
             f".create-or-alter function with (folder='parse', docstring={_kql_string(stream.description)})"
             f" {fn}()\n{{\n    {RAW_TABLE}\n"
+            f"    | extend event = {RAW_EVENT_EXPR}\n"
             f"    | where tostring(event['event_type']) == {_kql_string(stream.event_type)}\n"
             f"    | project\n        {projections}\n}}"
         ),

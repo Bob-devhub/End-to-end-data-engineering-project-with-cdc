@@ -1,0 +1,276 @@
+{
+  "schema_version": 89,
+  "flavor": "RTDashboard_Regular",
+  "tiles": [
+    {
+      "id": "523611d4-555a-43b3-a736-9ee4f4845353",
+      "queryRef": {
+        "kind": "query",
+        "queryId": "28d5b2d5-5b90-4955-a64d-1f1d676cc3cf"
+      },
+      "title": "events_raw Table Preview",
+      "visualType": "table",
+      "pageId": "597fd1c0-1c77-4ad5-bc6e-c7076e8d4ae8",
+      "layout": {
+        "x": 12,
+        "y": 7,
+        "width": 12,
+        "height": 7
+      },
+      "visualOptions": {}
+    },
+    {
+      "id": "f5eaf29e-8551-48d0-9076-735e800300b4",
+      "title": "Sales per minute by store",
+      "visualType": "timeseries",
+      "pageId": "597fd1c0-1c77-4ad5-bc6e-c7076e8d4ae8",
+      "layout": {
+        "x": 4,
+        "y": 0,
+        "width": 10,
+        "height": 7
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "f64647c5-257f-4e72-a256-2779a79a3180"
+      },
+      "visualOptions": {
+        "timeSeries__timeDataSource": null,
+        "timeSeries__allowPanAndZoom": false,
+        "timeSeries__initialZoom": null,
+        "timeSeries__measuredEntities": [],
+        "timeSeries__measuredData": null,
+        "seriesColors": {}
+      }
+    },
+    {
+      "id": "3e2868eb-6e74-481f-9cc6-ae834e6bf77f",
+      "title": "Top items, last 15 minutes",
+      "visualType": "bar",
+      "pageId": "597fd1c0-1c77-4ad5-bc6e-c7076e8d4ae8",
+      "layout": {
+        "x": 14,
+        "y": 0,
+        "width": 10,
+        "height": 7
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "3fa6f6e3-2698-457a-b4d3-b4408a1aeb12"
+      },
+      "visualOptions": {
+        "multipleYAxes": {
+          "base": {
+            "id": "-1",
+            "label": "",
+            "columns": [],
+            "yAxisMaximumValue": null,
+            "yAxisMinimumValue": null,
+            "yAxisScale": "linear",
+            "horizontalLines": []
+          },
+          "additional": [],
+          "showMultiplePanels": false
+        },
+        "seriesColors": {},
+        "hideLegend": false,
+        "legendLocation": "bottom",
+        "xColumnTitle": "",
+        "xColumn": null,
+        "yColumns": null,
+        "seriesColumns": null,
+        "xAxisScale": "linear",
+        "verticalLine": "",
+        "crossFilter": [],
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "forceAxisTicks": false,
+        "drillthrough": []
+      }
+    },
+    {
+      "id": "e8852861-0a12-4993-9dee-b8a9346f88f3",
+      "title": "Freezer temperatures",
+      "visualType": "timeseries",
+      "pageId": "597fd1c0-1c77-4ad5-bc6e-c7076e8d4ae8",
+      "layout": {
+        "x": 0,
+        "y": 7,
+        "width": 12,
+        "height": 7
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "76c0fa10-ca1b-4f46-94f5-5316bcbe6d1c"
+      },
+      "visualOptions": {
+        "timeSeries__timeDataSource": null,
+        "timeSeries__allowPanAndZoom": false,
+        "timeSeries__initialZoom": null,
+        "timeSeries__measuredEntities": [],
+        "timeSeries__measuredData": null,
+        "seriesColors": {}
+      }
+    },
+    {
+      "id": "cd96acc8-8bf2-4d6a-9156-cd718d543688",
+      "title": "Click funnel, last hour",
+      "visualType": "column",
+      "pageId": "597fd1c0-1c77-4ad5-bc6e-c7076e8d4ae8",
+      "layout": {
+        "x": 0,
+        "y": 14,
+        "width": 9,
+        "height": 7
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "fe361281-8fb8-422a-9440-a5bd69b1af88"
+      },
+      "visualOptions": {
+        "multipleYAxes": {
+          "base": {
+            "id": "-1",
+            "label": "",
+            "columns": [],
+            "yAxisMaximumValue": null,
+            "yAxisMinimumValue": null,
+            "yAxisScale": "linear",
+            "horizontalLines": []
+          },
+          "additional": [],
+          "showMultiplePanels": false
+        },
+        "seriesColors": {},
+        "hideLegend": false,
+        "legendLocation": "bottom",
+        "xColumnTitle": "",
+        "xColumn": null,
+        "yColumns": null,
+        "seriesColumns": null,
+        "xAxisScale": "linear",
+        "verticalLine": "",
+        "crossFilter": [],
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "forceAxisTicks": false,
+        "drillthrough": []
+      }
+    },
+    {
+      "id": "cc214089-b5ee-4d78-abfc-f5990261c0bd",
+      "title": "Revenue now",
+      "visualType": "card",
+      "pageId": "597fd1c0-1c77-4ad5-bc6e-c7076e8d4ae8",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "width": 4,
+        "height": 7
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "c50be761-e46e-4442-9bcb-9f7c53ea2931"
+      },
+      "visualOptions": {
+        "multiStat__textSize": "auto",
+        "multiStat__valueColumn": null,
+        "colorRulesDisabled": false,
+        "colorRules": []
+      }
+    }
+  ],
+  "baseQueries": [],
+  "parameters": [
+    {
+      "kind": "duration",
+      "id": "0d778c85-9806-491c-9208-63ff4a07da9b",
+      "displayName": "Time range",
+      "description": "",
+      "beginVariableName": "_startTime",
+      "endVariableName": "_endTime",
+      "defaultValue": {
+        "kind": "dynamic",
+        "count": 1,
+        "unit": "hours"
+      },
+      "showOnPages": {
+        "kind": "all"
+      }
+    }
+  ],
+  "dataSources": [
+    {
+      "id": "fb5bc8bc-4794-43f5-a6f1-1a92f1de8796",
+      "kind": "kusto-trident",
+      "clusterUri": "",
+      "databaseArtifactId": "b73160a8-b37e-4b2e-919e-9c04c62a8e5c",
+      "database": "c62a8e5c-9c04-919e-4b2e-b37eb73160a8",
+      "workspace": "00000000-0000-0000-0000-000000000000",
+      "name": "kql_retail_rt"
+    }
+  ],
+  "pages": [
+    {
+      "name": "Page 1",
+      "id": "597fd1c0-1c77-4ad5-bc6e-c7076e8d4ae8"
+    }
+  ],
+  "queries": [
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "fb5bc8bc-4794-43f5-a6f1-1a92f1de8796"
+      },
+      "text": "['events_raw'] | take 10",
+      "id": "28d5b2d5-5b90-4955-a64d-1f1d676cc3cf",
+      "usedVariables": []
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "fb5bc8bc-4794-43f5-a6f1-1a92f1de8796"
+      },
+      "text": "mv_pos_sales_1m\r\n| where window_start > ago(1h)\r\n| project window_start, store_id = tostring(store_id), revenue",
+      "id": "f64647c5-257f-4e72-a256-2779a79a3180",
+      "usedVariables": []
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "fb5bc8bc-4794-43f5-a6f1-1a92f1de8796"
+      },
+      "text": "mv_pos_item_velocity_15m\r\n| where window_start > ago(15m)\r\n| summarize units = sum(units) by stock_item_id\r\n| top 10 by units",
+      "id": "3fa6f6e3-2698-457a-b4d3-b4408a1aeb12",
+      "usedVariables": []
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "fb5bc8bc-4794-43f5-a6f1-1a92f1de8796"
+      },
+      "text": "mv_iot_device_1m\r\n| where sensor_type == \"freezer\" and window_start > ago(1h)\r\n| summarize temp_c = avg(avg_value) by window_start, store_id = tostring(store_id)",
+      "id": "76c0fa10-ca1b-4f46-94f5-5316bcbe6d1c",
+      "usedVariables": []
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "fb5bc8bc-4794-43f5-a6f1-1a92f1de8796"
+      },
+      "text": "mv_click_funnel_5m\r\n| where window_start > ago(1h)\r\n| summarize events = sum(events) by action\r\n| order by events desc",
+      "id": "fe361281-8fb8-422a-9440-a5bd69b1af88",
+      "usedVariables": []
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "fb5bc8bc-4794-43f5-a6f1-1a92f1de8796"
+      },
+      "text": "pos_transactions\r\n| where event_time > ago(5m)\r\n| summarize revenue = round(sum(amount), 2)",
+      "id": "c50be761-e46e-4442-9bcb-9f7c53ea2931",
+      "usedVariables": []
+    }
+  ],
+  "embeddedApps": []
+}

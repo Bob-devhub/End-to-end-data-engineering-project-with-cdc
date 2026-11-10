@@ -101,7 +101,9 @@ if entity.load.ingestion_engine == "notebook" and entity.load.primary_keys and h
     rename = {c.source: c.target_name for c in entity.columns}
     keys = [rename.get(k, k) for k in entity.load.primary_keys]
     w = Window.partitionBy(*keys).orderBy(F.col("_ingested_at").desc())
-    silver = silver.withColumn("_rn", F.row_number().over(w)).where("_rn = 1").drop("_rn")
+    # Rows with a NULL key are kept as-is (not collapsed into one) so DQ can quarantine each of them
+    null_key = " OR ".join(f"`{k}` IS NULL" for k in keys)
+    silver = silver.withColumn("_rn", F.row_number().over(w)).where(f"_rn = 1 OR {null_key}").drop("_rn")
 
 if has_ingested_at:
     silver = silver.drop("_ingested_at")

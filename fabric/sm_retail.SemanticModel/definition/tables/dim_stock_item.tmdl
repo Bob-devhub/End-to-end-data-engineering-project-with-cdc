@@ -1,0 +1,112 @@
+table dim_stock_item
+	lineageTag: 0d096cb8-24b6-4bdf-b139-f1ce5a5732af
+	sourceLineageTag: [dbo].[dim_stock_item]
+
+	column stock_item_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 33dbdf34-8868-4596-81f5-48c8db9d5ae4
+		sourceLineageTag: stock_item_key
+		summarizeBy: none
+		sourceColumn: stock_item_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column stock_item_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 2745367e-7f94-49bb-91f9-fc7ab8d7bf0f
+		sourceLineageTag: stock_item_id
+		summarizeBy: none
+		sourceColumn: stock_item_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column stock_item_name
+		dataType: string
+		lineageTag: 6cb28fce-29f2-41f9-bb98-f5dd4451f4da
+		sourceLineageTag: stock_item_name
+		summarizeBy: none
+		sourceColumn: stock_item_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column brand
+		dataType: string
+		lineageTag: c818f3eb-9dfa-4329-b8b3-3e0e7dd8042a
+		sourceLineageTag: brand
+		summarizeBy: none
+		sourceColumn: brand
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 5792ce76-b6bf-4372-97db-a01d73b489c6
+		sourceLineageTag: supplier_id
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_price
+		dataType: double
+		lineageTag: de50ba86-5297-491e-a772-8f70aac0382b
+		sourceLineageTag: unit_price
+		summarizeBy: sum
+		sourceColumn: unit_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column recommended_retail_price
+		dataType: double
+		lineageTag: 7cf9ac5f-e1f1-4ebb-9867-01aa5c104def
+		sourceLineageTag: recommended_retail_price
+		summarizeBy: sum
+		sourceColumn: recommended_retail_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column effective_from
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 8d6d75af-5fed-4fcc-a60f-962519d27030
+		sourceLineageTag: effective_from
+		summarizeBy: none
+		sourceColumn: effective_from
+
+		annotation SummarizationSetBy = Automatic
+
+	column effective_to
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: f7af09fd-5dc7-4b5f-9e95-bf0dc9478332
+		sourceLineageTag: effective_to
+		summarizeBy: none
+		sourceColumn: effective_to
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_current
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 8c21c710-e945-4f9c-997a-39dec7787c65
+		sourceLineageTag: is_current
+		summarizeBy: none
+		sourceColumn: is_current
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_stock_item = entity
+		mode: directLake
+		source
+			entityName: dim_stock_item
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

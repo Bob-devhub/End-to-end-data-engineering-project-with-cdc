@@ -1,0 +1,77 @@
+table fact_stock_holding
+	lineageTag: 517df7ca-9581-4773-a15b-a9a7746291e8
+	sourceLineageTag: [dbo].[fact_stock_holding]
+
+	measure 'Items Below Reorder' = CALCULATE(COUNTROWS(fact_stock_holding), fact_stock_holding[below_reorder] = TRUE())
+		formatString: #,0
+		lineageTag: b920d71e-984c-4d59-af61-fe2eca13c17d
+
+	column stock_item_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: b6e06dd2-fd4b-4659-a821-8d334fc86bf8
+		sourceLineageTag: stock_item_key
+		summarizeBy: none
+		sourceColumn: stock_item_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column quantity_on_hand
+		dataType: int64
+		formatString: 0
+		lineageTag: b751053c-d888-4d52-a7a0-5c0726231bba
+		sourceLineageTag: quantity_on_hand
+		summarizeBy: sum
+		sourceColumn: quantity_on_hand
+
+		annotation SummarizationSetBy = Automatic
+
+	column reorder_level
+		dataType: int64
+		formatString: 0
+		lineageTag: ece887e8-6cf4-4ae7-b2e2-c655d918d64b
+		sourceLineageTag: reorder_level
+		summarizeBy: sum
+		sourceColumn: reorder_level
+
+		annotation SummarizationSetBy = Automatic
+
+	column target_stock_level
+		dataType: int64
+		formatString: 0
+		lineageTag: f941a39f-70c9-4c32-8fea-0a40b0f29d83
+		sourceLineageTag: target_stock_level
+		summarizeBy: sum
+		sourceColumn: target_stock_level
+
+		annotation SummarizationSetBy = Automatic
+
+	column below_reorder
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: da7fd604-1b25-49ee-8678-3ac323108216
+		sourceLineageTag: below_reorder
+		summarizeBy: none
+		sourceColumn: below_reorder
+
+		annotation SummarizationSetBy = Automatic
+
+	column snapshot_date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e6b8b9cc-a8bf-4fd9-836d-e3e490d46ec2
+		sourceLineageTag: snapshot_date_key
+		summarizeBy: none
+		sourceColumn: snapshot_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_stock_holding = entity
+		mode: directLake
+		source
+			entityName: fact_stock_holding
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

@@ -1,0 +1,145 @@
+table run_log
+	lineageTag: 4afb4480-8770-4ea2-9a8b-09aef02f4011
+	sourceLineageTag: [dbo].[run_log]
+
+	measure Runs = COUNTROWS(run_log)
+		formatString: #,0
+		lineageTag: 20f3f00c-bcf9-40e5-96bf-9c071ec49e38
+
+	measure 'Failed Runs' = CALCULATE(COUNTROWS(run_log), run_log[status] = "failed")
+		formatString: #,0
+		lineageTag: 5525e9dd-ac3b-4c39-8153-aaa320d3dbb8
+
+	measure 'Success Rate' = DIVIDE(CALCULATE(COUNTROWS(run_log), run_log[status] = "succeeded"), [Runs])
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 4f907356-1bf1-46be-88d9-ed37fb7b132f
+
+	measure 'Avg Duration (s)' = AVERAGEX(FILTER(run_log, NOT ISBLANK(run_log[ended_at]) && run_log[status] <> "abandoned"), DATEDIFF(run_log[started_at], run_log[ended_at], SECOND))
+		formatString: #,0
+		lineageTag: 49e99860-61b9-411e-9c2c-76d39603797c
+
+	measure 'Quarantined Rows' = SUM(run_log[rows_quarantined])
+		formatString: #,0
+		lineageTag: 39058d9d-dcc9-4bcb-8dd3-233cf50908bb
+
+	column run_log_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 99162849-a3c7-423f-9062-632542b36098
+		sourceLineageTag: run_log_id
+		summarizeBy: sum
+		sourceColumn: run_log_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column pipeline_run_id
+		dataType: string
+		lineageTag: 3ed28342-fd4d-4309-910e-d0c4647c207c
+		sourceLineageTag: pipeline_run_id
+		summarizeBy: none
+		sourceColumn: pipeline_run_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column entity_id
+		dataType: string
+		lineageTag: 6363148c-1f38-425e-87e1-31b8213621b5
+		sourceLineageTag: entity_id
+		summarizeBy: none
+		sourceColumn: entity_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column stage
+		dataType: string
+		lineageTag: 5a8a5e63-6e29-4d78-a6ce-b586332e82a8
+		sourceLineageTag: stage
+		summarizeBy: none
+		sourceColumn: stage
+
+		annotation SummarizationSetBy = Automatic
+
+	column status
+		dataType: string
+		lineageTag: 6e0ac99d-9306-4fe5-8e06-1f0b6429d629
+		sourceLineageTag: status
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	column rows_read
+		dataType: int64
+		formatString: 0
+		lineageTag: 0be0e0cf-2ed6-4529-ab45-00d09f912fc4
+		sourceLineageTag: rows_read
+		summarizeBy: sum
+		sourceColumn: rows_read
+
+		annotation SummarizationSetBy = Automatic
+
+	column rows_written
+		dataType: int64
+		formatString: 0
+		lineageTag: f932ec32-c9ea-4d93-b457-4e53c48a2bbc
+		sourceLineageTag: rows_written
+		summarizeBy: sum
+		sourceColumn: rows_written
+
+		annotation SummarizationSetBy = Automatic
+
+	column rows_quarantined
+		dataType: int64
+		formatString: 0
+		lineageTag: 7c46a34a-c5d9-4ba4-8271-9c662d532b00
+		sourceLineageTag: rows_quarantined
+		summarizeBy: sum
+		sourceColumn: rows_quarantined
+
+		annotation SummarizationSetBy = Automatic
+
+	column started_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: c14429c5-2ea4-468a-b6f9-10f402c05463
+		sourceLineageTag: started_at
+		summarizeBy: none
+		sourceColumn: started_at
+
+		annotation SummarizationSetBy = Automatic
+
+	column ended_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 5cc2971a-4127-43b5-b2d2-f95ae02b2f03
+		sourceLineageTag: ended_at
+		summarizeBy: none
+		sourceColumn: ended_at
+
+		annotation SummarizationSetBy = Automatic
+
+	column error_message
+		dataType: string
+		lineageTag: 4c8d5952-1e8a-4570-a696-1e68f412c3ac
+		sourceLineageTag: error_message
+		summarizeBy: none
+		sourceColumn: error_message
+
+		annotation SummarizationSetBy = Automatic
+
+	column details_json
+		dataType: string
+		lineageTag: a5968a6f-f71d-4864-b8c0-572e1b72a873
+		sourceLineageTag: details_json
+		summarizeBy: none
+		sourceColumn: details_json
+
+		annotation SummarizationSetBy = Automatic
+
+	partition run_log = entity
+		mode: directLake
+		source
+			entityName: run_log
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

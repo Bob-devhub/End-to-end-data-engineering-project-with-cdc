@@ -1,0 +1,74 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "8df5403961ce2b0ba206",
+  "position": {
+    "x": 13.670886075949367,
+    "y": 18.227848101265824,
+    "z": 1,
+    "height": 300,
+    "width": 300,
+    "tabOrder": 1
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_stock_holding"
+                    }
+                  },
+                  "Property": "Items Below Reorder"
+                }
+              },
+              "queryRef": "fact_stock_holding.Items Below Reorder",
+              "nativeQueryRef": "Items Below Reorder"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_stock_holding"
+                  }
+                },
+                "Property": "Items Below Reorder"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "feef186f3404ab9e030b",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_stock_holding"
+              }
+            },
+            "Property": "Items Below Reorder"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

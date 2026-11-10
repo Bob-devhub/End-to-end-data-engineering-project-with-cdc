@@ -21,6 +21,7 @@ load:
   ingestion_engine: notebook
   read_method: new_files
   write_method: append
+  primary_keys: [promo_id]
 
 columns:
   - { source: promo_id, target: promo_id, type: string, nullable: false }

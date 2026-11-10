@@ -1,0 +1,246 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "5364750c3db1ce820d25",
+  "position": {
+    "x": 10.632911392405063,
+    "y": 569.620253164557,
+    "z": 5,
+    "height": 493.6708860759494,
+    "width": 935.69620253164555,
+    "tabOrder": 5
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "run_log"
+                    }
+                  },
+                  "Property": "entity_id"
+                }
+              },
+              "queryRef": "run_log.entity_id",
+              "nativeQueryRef": "entity_id"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "run_log"
+                    }
+                  },
+                  "Property": "stage"
+                }
+              },
+              "queryRef": "run_log.stage",
+              "nativeQueryRef": "stage"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "run_log"
+                    }
+                  },
+                  "Property": "status"
+                }
+              },
+              "queryRef": "run_log.status",
+              "nativeQueryRef": "status"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "run_log"
+                    }
+                  },
+                  "Property": "started_at"
+                }
+              },
+              "queryRef": "run_log.started_at",
+              "nativeQueryRef": "started_at"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "run_log"
+                        }
+                      },
+                      "Property": "rows_written"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(run_log.rows_written)",
+              "nativeQueryRef": "Sum of rows_written"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "run_log"
+                    }
+                  },
+                  "Property": "error_message"
+                }
+              },
+              "queryRef": "run_log.error_message",
+              "nativeQueryRef": "error_message"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "run_log"
+                  }
+                },
+                "Property": "error_message"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "288.1265868346747D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "run_log.entity_id"
+          }
+        }
+      ],
+      "columnHeaders": [
+        {
+          "properties": {}
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "0aede5a90d121130387a",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "run_log"
+              }
+            },
+            "Property": "entity_id"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "4906b5ce00aa1c838d0d",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "run_log"
+              }
+            },
+            "Property": "stage"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "74c8bde0537db212c06a",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "run_log"
+              }
+            },
+            "Property": "status"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "1b9b85d0d02561dd1a0e",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "run_log"
+              }
+            },
+            "Property": "started_at"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "b4a4f6e3aa3bed2e9099",
+        "field": {
+          "Aggregation": {
+            "Expression": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "run_log"
+                  }
+                },
+                "Property": "rows_written"
+              }
+            },
+            "Function": 0
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "a27b9739270931b62ce0",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "run_log"
+              }
+            },
+            "Property": "error_message"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
+  }
+}
