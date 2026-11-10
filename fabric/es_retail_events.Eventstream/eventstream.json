@@ -1,0 +1,53 @@
+{
+  "sources": [
+    {
+      "id": "719a7d3e-77a0-4809-8c63-e5c0a2dcc0d0",
+      "name": "simulator",
+      "type": "CustomEndpoint",
+      "properties": {}
+    }
+  ],
+  "destinations": [
+    {
+      "id": "5694a03c-988a-4471-8c38-bf949825e926",
+      "name": "Eventhouse",
+      "type": "Eventhouse",
+      "properties": {
+        "dataIngestionMode": "DirectIngestion",
+        "workspaceId": "00000000-0000-0000-0000-000000000000",
+        "itemId": "c62a8e5c-9c04-919e-4b2e-b37eb73160a8",
+        "tableName": "events_raw",
+        "connectionName": "es_retail_events_a0mk0y",
+        "mappingRuleName": "events_raw_mapping_2"
+      },
+      "inputNodes": [
+        {
+          "name": "es_retail_event-stream"
+        }
+      ],
+      "inputSchemas": [
+        {
+          "name": "es_retail_event-stream",
+          "schema": {
+            "columns": []
+          }
+        }
+      ]
+    }
+  ],
+  "streams": [
+    {
+      "id": "6e7d2a6c-f686-41b0-ac35-5325e9bb5620",
+      "name": "es_retail_event-stream",
+      "type": "DefaultStream",
+      "properties": {},
+      "inputNodes": [
+        {
+          "name": "simulator"
+        }
+      ]
+    }
+  ],
+  "operators": [],
+  "compatibilityLevel": "1.1"
+}
