@@ -93,10 +93,11 @@ python simulator/producer.py --dry-run --count 5
 - [x] **5. Cold path.** ADLS (`dataengcdc/landing`) shortcut, `nb_ingest_files`, ingest stage in `pl_master`, and
       `pl_file_arrival` run by a storage event trigger (`es_file_arrival` → `act_file_arrival`). Sample files:
       `scripts/generate_partner_files.py`.
-- [ ] **6. Hot path.** Eventhouse plus `deploy_kql.py --apply`, Eventstream custom endpoint, simulator,
-      Real-Time Dashboard, Activator (`--freezer-fault-store 7` to trigger the alert).
+- [x] **6. Hot path.** `eh_retail_rt`/`kql_retail_rt` (`deploy_kql.py --apply`), `es_retail_events` custom endpoint →
+      `events_raw` (Direct ingestion), simulator, `rtd_store_ops`, freezer and sales-spike alerts
+      (`--freezer-fault-store 7`), and `fact_pos_daily` in Gold via the `rt_pos_transactions` shortcut.
 - [x] **7. Gold and BI.** `nb_build_gold` (gold stage in `pl_master`), Direct Lake `sm_retail` (13 measures, ops tables
-      shortcut from `sqldb_control`), `rpt_retail` (Sales, Stores and Stock, Operations). `fact_pos_daily` waits on phase 6.
+      shortcut from `sqldb_control`), `rpt_retail` (Sales, Stores and Stock, Operations). 
 - [ ] **8. CI/CD.** GitHub OIDC service principal, TEST/PROD workspaces, `fabric/parameter.yml`, `deploy.yml`.
 
 ## Key design decisions
