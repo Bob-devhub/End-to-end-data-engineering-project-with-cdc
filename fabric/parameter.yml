@@ -77,8 +77,13 @@ find_replace:
       PROD: "$items.Eventstream.es_file_arrival.id"
     item_type: "Reflex"
 
-  # Eventhouse query URI (add once the Eventhouse exists)
-  # - find_value: "https://<dev>.kusto.fabric.microsoft.com"
-  #   replace_value:
-  #     TEST: "https://<test>.kusto.fabric.microsoft.com"
-  #     PROD: "https://<prod>.kusto.fabric.microsoft.com"
+  # Hot path: kql_retail_rt (child of eh_retail_rt) is referenced by item id from es_retail_events
+  # (Eventhouse destination) and rtd_store_ops (data source), and by cluster URI from its embedded queryset
+  - find_value: "b73160a8-b37e-4b2e-919e-9c04c62a8e5c"   # kql_retail_rt item id (DEV)
+    replace_value:
+      TEST: "$items.KQLDatabase.kql_retail_rt.id"
+      PROD: "$items.KQLDatabase.kql_retail_rt.id"
+  - find_value: "https://trd-0jjvvz4p2kr4vzqh4g.z4.kusto.fabric.microsoft.com"   # eh_retail_rt query URI (DEV)
+    replace_value:
+      TEST: "https://<test-eventhouse>.kusto.fabric.microsoft.com"
+      PROD: "https://<prod-eventhouse>.kusto.fabric.microsoft.com"
