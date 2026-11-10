@@ -22,4 +22,5 @@ ref table fact_stock_holding
 ref table fact_store_footfall
 ref table dq_result
 ref table run_log
+ref table fact_pos_daily
 

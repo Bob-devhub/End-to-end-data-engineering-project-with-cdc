@@ -1,0 +1,85 @@
+table fact_pos_daily
+	lineageTag: e6c7afe0-4dfa-4ff3-bca1-4edd5557674d
+	sourceLineageTag: [dbo].[fact_pos_daily]
+
+	measure 'POS Revenue' = SUM(fact_pos_daily[revenue])
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: e55641da-703c-4901-869f-1874d62f4e8b
+
+	measure 'POS Units' = SUM(fact_pos_daily[units])
+		formatString: #,0
+		lineageTag: f1b8f97f-874a-441c-9a9c-894e45bcb763
+
+	measure 'POS Transactions' = SUM(fact_pos_daily[transactions])
+		formatString: #,0
+		lineageTag: b2d3d9a3-5280-4189-b4bc-103c8ec720e0
+
+	column date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: cfa0bd44-ce51-464e-970c-56a7564fbd4b
+		sourceLineageTag: date_key
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 623f893d-6cbe-4f45-9cbc-59e4698fe9fe
+		sourceLineageTag: store_id
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column stock_item_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: f10eaad8-55b6-41a3-a052-89c1b408db5b
+		sourceLineageTag: stock_item_key
+		summarizeBy: none
+		sourceColumn: stock_item_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column units
+		dataType: int64
+		formatString: 0
+		lineageTag: ef3aa1c5-86e8-4b9d-93f6-6fe0089276ff
+		sourceLineageTag: units
+		summarizeBy: sum
+		sourceColumn: units
+
+		annotation SummarizationSetBy = Automatic
+
+	column revenue
+		dataType: double
+		formatString: #,0.00
+		lineageTag: e88d635f-d304-43fd-8740-e0cd2927ae21
+		sourceLineageTag: revenue
+		summarizeBy: sum
+		sourceColumn: revenue
+
+		annotation SummarizationSetBy = Automatic
+
+	column transactions
+		dataType: int64
+		formatString: 0
+		lineageTag: 97fed4b5-f247-4b5e-9db3-06fdab1b1035
+		sourceLineageTag: transactions
+		summarizeBy: sum
+		sourceColumn: transactions
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_pos_daily = entity
+		mode: directLake
+		source
+			entityName: fact_pos_daily
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

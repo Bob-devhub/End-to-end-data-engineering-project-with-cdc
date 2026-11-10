@@ -30,3 +30,15 @@ relationship 114aee81-0bbb-32ad-2f7c-3f6704250ec4
 	fromColumn: fact_promotion.stock_item_key
 	toColumn: dim_stock_item.stock_item_key
 
+relationship ee52edeb-b59d-4ef3-aa1a-5bc5cafdffba
+	fromColumn: fact_pos_daily.date_key
+	toColumn: dim_date.date_key
+
+relationship d25d926e-2f50-4c4f-a007-5d353737ffbb
+	fromColumn: fact_pos_daily.store_id
+	toColumn: dim_store.store_id
+
+relationship 72f630de-99c9-4b7f-b788-0329c5847b00
+	fromColumn: fact_pos_daily.stock_item_key
+	toColumn: dim_stock_item.stock_item_key
+
