@@ -283,11 +283,21 @@ LEFT JOIN dim_stock_item ds ON ds.stock_item_id = h.stock_item_id AND ds.is_curr
 
 # %% fact_pos_daily (in-store sales from the real-time path, via OneLake availability) - phase 6
 if spark.catalog.tableExists("rt_pos_transactions"):  # noqa: F821
+    # Point-in-time join like fact_sales: the stock item version valid on the sales date
     build("fact_pos_daily", """
-    SELECT CAST(date_format(CAST(event_time AS DATE), 'yyyyMMdd') AS INT) AS date_key, store_id, stock_item_id,
-           SUM(quantity) AS units, SUM(amount) AS revenue, COUNT(DISTINCT transaction_id) AS transactions
-    FROM rt_pos_transactions
-    GROUP BY 1, 2, 3
+    WITH daily AS (
+        SELECT CAST(event_time AS DATE) AS sales_date, store_id, stock_item_id,
+               SUM(quantity) AS units, CAST(SUM(amount) AS DECIMAL(18,2)) AS revenue,
+               COUNT(DISTINCT transaction_id) AS transactions
+        FROM rt_pos_transactions
+        GROUP BY 1, 2, 3
+    )
+    SELECT CAST(date_format(d.sales_date, 'yyyyMMdd') AS INT) AS date_key, d.store_id,
+           coalesce(ds.stock_item_key, -1) AS stock_item_key, d.units, d.revenue, d.transactions
+    FROM daily d
+    LEFT JOIN dim_stock_item ds
+           ON ds.stock_item_id = d.stock_item_id
+          AND d.sales_date >= CAST(ds.effective_from AS DATE) AND d.sales_date < CAST(ds.effective_to AS DATE)
     """)
 else:
     print("rt_pos_transactions shortcut not found - skipping fact_pos_daily")
@@ -308,6 +318,9 @@ unknown = {
     "fact_promotion.stock_item_key": spark.sql(  # noqa: F821
         "SELECT count(*) FROM fact_promotion WHERE stock_item_key = -1").first()[0],
 }
+if "fact_pos_daily" in tables:
+    unknown["fact_pos_daily.stock_item_key"] = spark.sql(  # noqa: F821
+        "SELECT count(*) FROM fact_pos_daily WHERE stock_item_key = -1").first()[0]
 print("unmatched (-1) keys:", unknown)
 
 result = {
