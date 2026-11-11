@@ -1,0 +1,17 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/variableLibrary/definition/variables/1.0.0/schema.json",
+  "variables": [
+    {
+      "name": "landing_container",
+      "note": "",
+      "type": "String",
+      "value": "/landing"
+    },
+    {
+      "name": "landing_connection_id",
+      "note": "",
+      "type": "String",
+      "value": "01ed05b8-a229-48aa-8543-c156151f43b7"
+    }
+  ]
+}

@@ -99,7 +99,10 @@
                   "value": "@item().copy_job_id",
                   "type": "Expression"
                 },
-                "workspaceId": "9d04974e-4eed-49f7-8f94-d136f1e83a45"
+                "workspaceId": {
+                  "value": "@pipeline().DataFactory",
+                  "type": "Expression"
+                }
               },
               "externalReferences": {
                 "connection": "bf33c8a8-b035-4510-8f47-d1a1e75c2705"
@@ -885,7 +888,10 @@
         "typeProperties": {
           "source": {
             "type": "FabricSqlDatabaseSource",
-            "sqlReaderQuery": "@concat('EXEC ctl.usp_log_run_start @pipeline_run_id = ''', pipeline().RunId, ''', @entity_id = ''gold'', @stage = ''gold''')",
+            "sqlReaderQuery": {
+              "value": "@concat('EXEC ctl.usp_log_run_start @pipeline_run_id = ''', pipeline().RunId, ''', @entity_id = ''gold'', @stage = ''gold''')",
+              "type": "Expression"
+            },
             "partitionOption": "None",
             "queryTimeout": "02:00:00"
           },
@@ -967,7 +973,10 @@
           "storedProcedureName": "[ctl].[usp_log_run_end]",
           "storedProcedureParameters": {
             "details_json": {
-              "value": "@activity('nb_gold').output.result.exitValue",
+              "value": {
+                "value": "@activity('nb_gold').output.result.exitValue",
+                "type": "Expression"
+              },
               "type": "String"
             },
             "error_message": {
@@ -983,7 +992,10 @@
               "type": "Int64"
             },
             "rows_written": {
-              "value": "@json(activity('nb_gold').output.result.exitValue).rows_written",
+              "value": {
+                "value": "@json(activity('nb_gold').output.result.exitValue).rows_written",
+                "type": "Expression"
+              },
               "type": "Int64"
             },
             "run_log_id": {
@@ -1040,7 +1052,10 @@
               "type": "String"
             },
             "error_message": {
-              "value": "@activity('nb_gold').error.message",
+              "value": {
+                "value": "@activity('nb_gold').error.message",
+                "type": "Expression"
+              },
               "type": "String"
             },
             "rows_quarantined": {
@@ -1056,7 +1071,10 @@
               "type": "Int64"
             },
             "run_log_id": {
-              "value": "@activity('lkp_log_start_gold').output.firstRow.run_log_id",
+              "value": {
+                "value": "@activity('lkp_log_start_gold').output.firstRow.run_log_id",
+                "type": "Expression"
+              },
               "type": "Int64"
             },
             "status": {
