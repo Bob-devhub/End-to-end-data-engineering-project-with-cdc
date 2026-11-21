@@ -1,7 +1,7 @@
 """Render Fabric Copy job item definitions from metadata - one Copy job per copy_job_group.
 
 Output is fabric/<cj_name>.CopyJob/{.platform,copyjob-content.json}, the same
-format Fabric Git integration writes, so fabric-cicd deploys them like any item.
+format Fabric Git integration writes, so deployment pipelines promote them like any item.
 
 The definition shape was captured from a Copy job built in the UI and synced to
 Git (cj_wwi_cdc_scd2, cj_wwi_cdc_merge, cj_wwi_watermark). Only (read_method, write_method) combinations with a

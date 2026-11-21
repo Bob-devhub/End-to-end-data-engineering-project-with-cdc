@@ -1,5 +1,5 @@
 # DEV Fabric ids used when rendering item definitions (Copy jobs).
-# fabric/parameter.yml swaps them for TEST/PROD at deploy time.
+# The same connections serve TEST/PROD; deployment pipelines remap item references per stage.
 # Lakehouse item ids are NOT needed here: they're read from fabric/<lakehouse>.Lakehouse/.platform.
 
 lakehouse_connections:

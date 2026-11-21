@@ -48,10 +48,9 @@ src/cdc_framework/          # Python package (also built as a wheel for the Fabr
   auth.py                   # Entra credential (az login / GitHub OIDC)
 scripts/                    # validate_metadata, sync_metadata, snapshot_source_schema, generate_copy_jobs, deploy_kql
 simulator/                  # POS / IoT / clickstream event producer
-fabric/                     # Fabric Git integration folder (items synced from DEV) + parameter.yml
-deploy/deploy.py            # fabric-cicd promotion to TEST/PROD
+fabric/                     # Fabric Git integration folder (items synced from DEV)
 kql/generated/              # generated KQL (git-ignored, CI artifact)
-.github/workflows/          # ci.yml (lint, validate, test, build wheel), deploy.yml (OIDC deploy)
+.github/workflows/          # ci.yml (lint, validate, test, build wheel), sync.yml (metadata → a stage's control DB)
 docs/                       # onboarding guide, Copy job template guide
 ```
 
@@ -98,7 +97,35 @@ python simulator/producer.py --dry-run --count 5
       (`--freezer-fault-store 7`), and `fact_pos_daily` in Gold via the `rt_pos_transactions` shortcut.
 - [x] **7. Gold and BI.** `nb_build_gold` (gold stage in `pl_master`), Direct Lake `sm_retail` (13 measures, ops tables
       shortcut from `sqldb_control`), `rpt_retail` (Sales, Stores and Stock, Operations). 
-- [ ] **8. CI/CD.** GitHub OIDC service principal, TEST/PROD workspaces, `fabric/parameter.yml`, `deploy.yml`.
+- [x] **8. CI/CD.** Fabric deployment pipeline DEV → TEST → PROD, `vl_retail`, `sm_retail` parameter rules,
+      `sync.yml` (OIDC, `sp-fabric-retail`). See *Promotion* below.
+
+## Promotion (DEV → TEST → PROD)
+
+| Stage | Workspace | Changed by | File ingest |
+|---|---|---|---|
+| DEV | `retail-dev` | Git integration (`bob/dev`) | event trigger (`pl_file_arrival`) + `pl_master` |
+| TEST | `Retail-test` | deployment pipeline | scheduled `pl_master` |
+| PROD | `Retail` | deployment pipeline (approval) | scheduled `pl_master` |
+
+All stages read the same **sources**: the WWI database and the `dataengcdc/landing` container (partner drop
+zone). Each stage keeps its own Copy job checkpoints, `new_files` history, control DB, lakehouses and model.
+Don't drop test files into `landing`: every stage ingests what is there.
+
+Per-stage values and how they're handled:
+
+| What | How |
+|---|---|
+| Item references (lakehouses, notebooks, Copy jobs, KQL DB, `sqldb_control`, report → model) | remapped by the deployment pipeline |
+| Copy job workspace in `pl_master` | `@pipeline().DataFactory` |
+| `lh_bronze` shortcut `landing` subpath | `vl_retail.landing_container` (resolved at deploy time: redeploy `lh_bronze` after changing a stage's active value set) |
+| `sm_retail` Direct Lake source | model parameters `WorkspaceId`, `LakehouseId` + a **parameter rule** per stage |
+| Connections (FabricSql, CopyJob, Notebook, Lakehouse, `conn-azsql-wwi`, `conn-adls-landing`) | shared by all stages |
+| Control DB metadata and Copy job ids | `sync.yml` (or `scripts/sync_metadata.py`) per stage after a deployment |
+
+After a deployment that changes metadata or Copy jobs, run **Sync metadata** (`sync.yml`) for that stage.
+The service principal `msgraph` (Notebook connection) and `sp-fabric-retail` need Contributor on each stage.
+Activator file-trigger rules are not remapped by deployments, so they live only in DEV.
 
 ## Key design decisions
 
@@ -111,4 +138,4 @@ python simulator/producer.py --dry-run --count 5
 - **Single raw table in Eventhouse.** Update policies route by `event_type`, so adding a stream
   doesn't touch the Eventstream.
 - **Git is the source of truth for metadata.** The control DB config tables are fully reloaded on
-  deploy, and operational tables (run log, watermarks, DQ results) are never touched.
+  every sync, and operational tables (run log, watermarks, DQ results) are never touched.

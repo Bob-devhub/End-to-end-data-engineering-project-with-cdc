@@ -1,12 +1,13 @@
 # fabric/ — Git-synced Fabric items
 
 This folder is the **Git folder** for the DEV workspace. Connect it in
-Fabric: *Workspace settings → Git integration → GitHub → this repo, branch `main`,
+Fabric: *Workspace settings → Git integration → GitHub → this repo, branch `bob/dev`,
 folder `/fabric`*. Fabric writes each item here as `<name>.<Type>/` with a
 `.platform` file — don't hand-create those; create items in the UI, then commit
 from the Source control pane.
 
-`deploy/deploy.py` (fabric-cicd) publishes the contents of this folder to TEST/PROD.
+Only DEV (`retail-dev`) is Git-connected. TEST (`Retail-test`) and PROD (`Retail`) are updated by the
+Fabric deployment pipeline. See *Promotion* in the main README.
 
 ## Items to create in the DEV workspace
 
@@ -25,11 +26,11 @@ from the Source control pane.
 | `nb_build_gold` | Notebook | Created; source of truth is `fabric/nb_build_gold.Notebook/`. Silver → star schema in `lh_gold.dbo` (SCD2 point-in-time keys, -1 unknown members) |
 | `pl_master` | Data pipeline | Orchestration (below) |
 | `pl_file_arrival` | Data pipeline | One file → ingest + Silver for the matching entity. Folder/file from `@pipeline()?.TriggerEvent` (parameters are the manual-run fallback) |
-| `es_file_arrival` / `act_file_arrival` | Eventstream / Activator | Created by *Add trigger* on `pl_file_arrival`: BlobCreated events from `dataengcdc` → run the pipeline |
+| `es_file_trigger` / `act_file_arrival` | Eventstream / Activator | DEV only. Created by *Add trigger* on `pl_file_arrival`: BlobCreated with subject containing `/blobs/partners/` → run the pipeline. Not remapped by deployments: don't deploy its file rule (TEST/PROD pick up files with scheduled `pl_master`) |
 | `eh_retail_rt` / `kql_retail_rt` | Eventhouse / KQL DB | Hot path. Objects from `scripts/deploy_kql.py --apply` |
 | `es_retail_events` | Eventstream | Custom endpoint → `events_raw` |
 | `rtd_store_ops` | Real-Time Dashboard | Live sales, freezer temps, funnel |
-| `act_store_alerts` | Activator | Alerts from `kql/generated/alerts/*.kql` |
+| (alerts in `act_file_arrival`) | Activator | Freezer and sales-spike alerts from `kql/generated/alerts/*.kql` (rule `act_store_alerts`) |
 | `sm_retail` / `rpt_retail` | Semantic model / Report | Direct Lake on `lh_gold` (incl. `run_log`/`dq_result` shortcuts). Report bound by relative path, no parameters needed |
 
 ## pl_master design

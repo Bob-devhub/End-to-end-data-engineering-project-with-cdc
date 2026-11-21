@@ -32,8 +32,9 @@ Key fields:
 | destination `artifactId` | logicalId from `fabric/<lakehouse>.Lakehouse/.platform` |
 | `translator` | auto-mapping, or an explicit mapping (from `metadata/source_schemas/`) when `source.exclude_columns` is set |
 
-Connection ids are DEV values. `fabric/parameter.yml` swaps them for TEST and
-PROD. fabric-cicd handles the logicalId and "same workspace" zeros itself.
+The connection ids are shared by all stages (the connections hold only credentials and the
+source; every stage reads the same WWI database). The deployment pipeline remaps the
+destination lakehouse to each stage's own `lh_bronze`.
 
 ## Supported read/write combinations
 
