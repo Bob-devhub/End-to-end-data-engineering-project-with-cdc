@@ -4,7 +4,7 @@
   "variableOverrides": [
     {
       "name": "landing_container",
-      "value": "/landing-prod"
+      "value": "/landing"
     }
   ]
 }
