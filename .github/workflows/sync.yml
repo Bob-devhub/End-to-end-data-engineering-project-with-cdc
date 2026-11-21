@@ -1,16 +1,20 @@
-name: Deploy
+name: Sync metadata
 
-# DEV is connected to Fabric Git integration directly (workspace <-> main).
-# TEST/PROD are promoted from main with this workflow. Configure GitHub
-# Environments "TEST" and "PROD" (add required reviewers on PROD) with:
-#   vars:    FABRIC_WORKSPACE_ID, CONTROL_DB_SERVER, CONTROL_DB_NAME, KUSTO_CLUSTER_URI, KUSTO_DATABASE
-#   secrets: AZURE_CLIENT_ID, AZURE_TENANT_ID   (federated credential for OIDC)
+# Promotion between stages is done by the Fabric deployment pipeline (Dev -> Test -> Prod).
+# This workflow does the one thing a deployment can't: load the Git metadata (metadata/config)
+# into the target stage's sqldb_control, and resolve that stage's Copy job ids for pl_master.
+#
+# Run it after each deployment that changes metadata or Copy jobs.
+# GitHub Environments "TEST" and "PROD" (add required reviewers on PROD) need:
+#   secrets: AZURE_CLIENT_ID, AZURE_TENANT_ID   (sp-fabric-retail, federated credential for OIDC)
+#   vars:    FABRIC_WORKSPACE_ID, CONTROL_DB_SERVER, CONTROL_DB_NAME   (from that stage's sqldb_control)
+# sp-fabric-retail needs Contributor on the stage's workspace (that covers sqldb_control).
 
 on:
   workflow_dispatch:
     inputs:
       environment:
-        description: Target environment
+        description: Target stage
         type: choice
         options: [TEST, PROD]
         required: true
@@ -20,7 +24,7 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
+  sync:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
@@ -38,7 +42,7 @@ jobs:
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
 
       - name: Install
-        run: pip install -e ".[db,kusto,deploy]"
+        run: pip install -e ".[db]"
 
       - uses: azure/login@v2
         with:
@@ -49,18 +53,9 @@ jobs:
       - name: Validate metadata
         run: python scripts/validate_metadata.py
 
-      - name: Deploy Fabric items
-        run: python deploy/deploy.py --environment ${{ inputs.environment }} --workspace-id ${{ vars.FABRIC_WORKSPACE_ID }}
-
       - name: Sync metadata to control DB
         env:
           CONTROL_DB_SERVER: ${{ vars.CONTROL_DB_SERVER }}
           CONTROL_DB_NAME: ${{ vars.CONTROL_DB_NAME }}
-          FABRIC_WORKSPACE_ID: ${{ vars.FABRIC_WORKSPACE_ID }}   # resolves Copy job ids for pl_master
+          FABRIC_WORKSPACE_ID: ${{ vars.FABRIC_WORKSPACE_ID }}   # resolves this stage's Copy job ids
         run: python scripts/sync_metadata.py
-
-      - name: Deploy KQL objects
-        env:
-          KUSTO_CLUSTER_URI: ${{ vars.KUSTO_CLUSTER_URI }}
-          KUSTO_DATABASE: ${{ vars.KUSTO_DATABASE }}
-        run: python scripts/deploy_kql.py --apply
