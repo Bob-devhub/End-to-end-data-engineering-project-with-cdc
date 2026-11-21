@@ -1,13 +1,13 @@
 {
   "sources": [
     {
-      "id": "43c157e0-d5b5-4b66-99df-66ec531d1d5d",
+      "id": "07f69cd8-392e-4502-a73e-aec65dcc9ce5",
       "name": "EventLinks",
       "type": "AzureBlobStorageEvents",
       "properties": {
         "azureBlobStorageEvents": [
           {
-            "id": "5f6959ff-aa26-4e1b-a372-766c1f873273",
+            "id": "1b0427da-2895-43fc-a93d-176530c94314",
             "azureResourceId": "/subscriptions/c3b18da3-2c7b-4829-87ec-0a3b03c7b50b/resourceGroups/bob-rg/providers/Microsoft.Storage/storageAccounts/dataengcdc",
             "includedEventTypes": [
               "Microsoft.Storage.BlobCreated"
@@ -21,15 +21,11 @@
   "destinations": [],
   "streams": [
     {
-      "id": "a3225865-9411-45d1-b1fa-ba6bf2601b12",
-      "name": "es_file_arrival",
+      "id": "802f8505-9790-4d5f-af60-77959a3e7e80",
+      "name": "new_eventstream-stream",
       "type": "DefaultStream",
       "properties": {},
-      "inputNodes": [
-        {
-          "name": "EventLinks"
-        }
-      ]
+      "inputNodes": []
     }
   ],
   "operators": [],
