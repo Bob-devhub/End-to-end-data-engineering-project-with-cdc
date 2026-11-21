@@ -282,7 +282,17 @@ LEFT JOIN dim_stock_item ds ON ds.stock_item_id = h.stock_item_id AND ds.is_curr
 # CELL ********************
 
 # %% fact_pos_daily (in-store sales from the real-time path, via OneLake availability) - phase 6
-if spark.catalog.tableExists("rt_pos_transactions"):  # noqa: F821
+# Always produce fact_pos_daily so the semantic model works in every stage; it is empty where the
+# hot path has no data yet (no shortcut, or an Eventhouse table not yet exposed in OneLake).
+def _pos_source_ready() -> bool:
+    try:
+        return spark.catalog.tableExists("rt_pos_transactions") and spark.table("rt_pos_transactions").limit(1).count() > 0  # noqa: F821
+    except Exception as e:  # broken/unresolvable shortcut
+        print(f"rt_pos_transactions not readable: {e}")
+        return False
+
+
+if _pos_source_ready():
     # Point-in-time join like fact_sales: the stock item version valid on the sales date
     build("fact_pos_daily", """
     WITH daily AS (
@@ -300,7 +310,12 @@ if spark.catalog.tableExists("rt_pos_transactions"):  # noqa: F821
           AND d.sales_date >= CAST(ds.effective_from AS DATE) AND d.sales_date < CAST(ds.effective_to AS DATE)
     """)
 else:
-    print("rt_pos_transactions shortcut not found - skipping fact_pos_daily")
+    print("no POS data - writing an empty fact_pos_daily")
+    build("fact_pos_daily", """
+    SELECT CAST(NULL AS INT) AS date_key, CAST(NULL AS INT) AS store_id, CAST(NULL AS BIGINT) AS stock_item_key,
+           CAST(NULL AS BIGINT) AS units, CAST(NULL AS DECIMAL(18,2)) AS revenue, CAST(NULL AS BIGINT) AS transactions
+    WHERE 1 = 0
+    """)
 
 # METADATA ********************
 
