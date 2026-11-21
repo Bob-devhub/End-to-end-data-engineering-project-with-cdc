@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import urllib.error
 import urllib.request
 
 API = "https://api.fabric.microsoft.com/v1"
@@ -17,8 +18,12 @@ def list_items(workspace_id: str, item_type: str) -> dict[str, str]:
     items: dict[str, str] = {}
     while url:
         req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            body = json.load(resp)
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                body = json.load(resp)
+        except urllib.error.HTTPError as e:
+            detail = e.read().decode("utf-8", "replace")[:500]
+            raise RuntimeError(f"Fabric API {e.code} for {url}: {detail}") from e
         items.update({i["displayName"]: i["id"] for i in body.get("value", [])})
         url = body.get("continuationUri")
     return items
