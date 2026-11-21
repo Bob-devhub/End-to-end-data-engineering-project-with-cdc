@@ -7,7 +7,7 @@
           "source": {
             "type": "FabricSqlDatabaseSource",
             "sqlReaderQuery": {
-              "value": "@concat('SELECT entity_id, config_json FROM ctl.vw_active_entities WHERE ingestion_engine = ''notebook'' AND JSON_VALUE(config_json, ''$.source.file_pattern'') LIKE ''', last(split(coalesce(pipeline()?.TriggerEvent?.FolderPath, pipeline().parameters.folder_path), '/')), '/%''')",
+              "value": "@concat('SELECT entity_id, config_json FROM ctl.vw_active_entities WHERE ingestion_engine = ''notebook'' AND ''', first(split(coalesce(pipeline()?.TriggerEvent?.FolderPath, pipeline().parameters.folder_path), '/')), ''' = ''', replace(pipeline().libraryVariables.landing_container, '/', ''), ''' AND JSON_VALUE(config_json, ''$.source.file_pattern'') LIKE ''', last(split(coalesce(pipeline()?.TriggerEvent?.FolderPath, pipeline().parameters.folder_path), '/')), '/%''')",
               "type": "Expression"
             },
             "partitionOption": "None",
@@ -413,7 +413,7 @@
                   },
                   "trigger_file": {
                     "value": {
-                      "value": "@concat('Files/', coalesce(pipeline()?.TriggerEvent?.FolderPath, pipeline().parameters.folder_path), '/', coalesce(pipeline()?.TriggerEvent?.FileName, pipeline().parameters.file_name))",
+                      "value": "@concat('Files/landing/', substring(coalesce(pipeline()?.TriggerEvent?.FolderPath, pipeline().parameters.folder_path), add(indexOf(coalesce(pipeline()?.TriggerEvent?.FolderPath, pipeline().parameters.folder_path), '/'), 1), sub(length(coalesce(pipeline()?.TriggerEvent?.FolderPath, pipeline().parameters.folder_path)), add(indexOf(coalesce(pipeline()?.TriggerEvent?.FolderPath, pipeline().parameters.folder_path), '/'), 1))), '/', coalesce(pipeline()?.TriggerEvent?.FileName, pipeline().parameters.file_name))",
                       "type": "Expression"
                     },
                     "type": "string"
@@ -596,6 +596,13 @@
       "file_name": {
         "type": "string",
         "defaultValue": "promotions_20261108.csv"
+      }
+    },
+    "libraryVariables": {
+      "landing_container": {
+        "type": "String",
+        "variableName": "landing_container",
+        "libraryName": "vl_retail"
       }
     }
   }

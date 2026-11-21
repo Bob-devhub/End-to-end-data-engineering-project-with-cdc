@@ -17,7 +17,6 @@ dependencies = [
 db = ["pyodbc>=5.1", "azure-identity>=1.17"]
 kusto = ["azure-kusto-data>=4.5", "azure-identity>=1.17"]
 sim = ["azure-eventhub>=5.12"]
-deploy = ["fabric-cicd>=0.1.20", "azure-identity>=1.17"]
 dev = ["pytest>=8.0", "ruff>=0.6"]
 
 [tool.setuptools.packages.find]

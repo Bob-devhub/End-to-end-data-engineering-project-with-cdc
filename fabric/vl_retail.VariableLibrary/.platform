@@ -1,11 +1,11 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
   "metadata": {
-    "type": "Eventstream",
-    "displayName": "es_file_arrival"
+    "type": "VariableLibrary",
+    "displayName": "vl_retail"
   },
   "config": {
     "version": "2.0",
-    "logicalId": "b2b4cb9a-4a33-b782-410f-1b4d7f31296d"
+    "logicalId": "247dbb00-9804-8f2e-4fb5-acc90de0a58a"
   }
 }

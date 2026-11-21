@@ -36,7 +36,7 @@ class SourceSystem(_Model):
     type: SourceType
     description: str = ""
     connection_name: str
-    fabric_connection_id: str | None = None  # DEV id; fabric/parameter.yml swaps it per environment
+    fabric_connection_id: str | None = None  # connection id, shared by all stages
     server: str | None = None
     database: str | None = None
     container: str | None = None

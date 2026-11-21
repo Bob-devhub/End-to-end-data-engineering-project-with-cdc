@@ -5,7 +5,7 @@
 
 Groups whose read/write combination has no captured Fabric example yet are
 skipped (see docs/copy-job-template.md). After writing, commit and let Fabric
-Git integration (DEV) or deploy/deploy.py (TEST/PROD) pick them up.
+Git integration (DEV) pick them up; the deployment pipeline promotes them to TEST/PROD.
 """
 
 from __future__ import annotations
