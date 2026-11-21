@@ -51,7 +51,7 @@ simulator/                  # POS / IoT / clickstream event producer
 fabric/                     # Fabric Git integration folder (items synced from DEV)
 kql/generated/              # generated KQL (git-ignored, CI artifact)
 .github/workflows/          # ci.yml (lint, validate, test, build wheel), sync.yml (metadata → a stage's control DB)
-docs/                       # onboarding guide, Copy job template guide
+docs/                       # onboarding guide, Copy job template guide, lessons learned
 ```
 
 ## Quick start (local)
