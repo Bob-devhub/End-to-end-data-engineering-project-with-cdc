@@ -51,7 +51,7 @@ simulator/                  # POS / IoT / clickstream event producer
 fabric/                     # Fabric Git integration folder (items synced from DEV)
 kql/generated/              # generated KQL (git-ignored, CI artifact)
 .github/workflows/          # ci.yml (lint, validate, test, build wheel), sync.yml (metadata → a stage's control DB)
-docs/                       # onboarding guide, Copy job template guide
+docs/                       # onboarding guide, Copy job template guide, lessons learned
 ```
 
 ## Quick start (local)
@@ -83,7 +83,7 @@ python simulator/producer.py --dry-run --count 5
 - [x] **1. Foundations.** Create Azure SQL DB (serverless) and restore WideWorldImporters, then run
       `source/azure_sql/001_enable_cdc.sql`. Create the Fabric workspace, `sqldb_control` (run the DDL),
       and `lh_bronze`/`lh_silver`/`lh_gold`. Connect Git to `/fabric`.
-- [ ] **2. Warm path.** ~~Build `cj_wwi_cdc_scd2` by hand~~ (done, now rendered from metadata). Run
+- [x] **2. Warm path.** ~~Build `cj_wwi_cdc_scd2` by hand~~ (done, now rendered from metadata). Run
       `002_simulate_changes.sql` and check the SCD2 rows in Bronze. All three Copy jobs are
       now rendered from metadata ([docs/copy-job-template.md](docs/copy-job-template.md)).
 - [x] **3. Metadata sync.** `scripts/sync_metadata.py`, then `pl_master` driven by `ctl.vw_*` views and logging procs.
@@ -95,7 +95,7 @@ python simulator/producer.py --dry-run --count 5
 - [x] **6. Hot path.** `eh_retail_rt`/`kql_retail_rt` (`deploy_kql.py --apply`), `es_retail_events` custom endpoint →
       `events_raw` (Direct ingestion), simulator, `rtd_store_ops`, freezer and sales-spike alerts
       (`--freezer-fault-store 7`), and `fact_pos_daily` in Gold via the `rt_pos_transactions` shortcut.
-- [x] **7. Gold and BI.** `nb_build_gold` (gold stage in `pl_master`), Direct Lake `sm_retail` (13 measures, ops tables
+- [x] **7. Gold and BI.** `nb_build_gold` (gold stage in `pl_master`), Direct Lake `sm_retail` (16 measures, ops tables
       shortcut from `sqldb_control`), `rpt_retail` (Sales, Stores and Stock, Operations). 
 - [x] **8. CI/CD.** Fabric deployment pipeline DEV → TEST → PROD, `vl_retail`, `sm_retail` parameter rules,
       `sync.yml` (OIDC, `sp-fabric-retail`). See *Promotion* below.
